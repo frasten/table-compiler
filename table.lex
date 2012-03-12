@@ -82,7 +82,7 @@ int linenumber = 1;
 %}
 %option	noyywrap
 
-delimiter    [ \t\n]
+delimiter    [ \t]
 spacing      {delimiter}+
 letter       [A-Za-z]
 digit        [0-9]
