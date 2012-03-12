@@ -69,8 +69,8 @@ typedef union {int ival; char *sval; } Lexval;
 
 
 
-char * newstring(char * str) {
-	char * new = malloc(strlen(str) + 1);
+char* newstring(char* str) {
+	char* new = malloc(strlen(str) + 1);
 	strcpy(new, str);
 	return new;
 }
@@ -78,41 +78,42 @@ char * newstring(char * str) {
 
 Lexval lexval;
 int linenumber = 1;
+
 %}
 %option	noyywrap
 
-delimiter [ \t\n]
-spacing {delimiter}+
-letter [A-Za-z]
-digit [0-9]
-intconst {digit}+
-strconst \"([^\"])*\"
+delimiter    [ \t\n]
+spacing      {delimiter}+
+letter       [A-Za-z]
+digit        [0-9]
+intconst     {digit}+
+strconst     \"([^\"])*\"
 /*"/* per il mio editor */
-boolconst true|false
-id {letter}({letter}|{digit})*
-newline \n
+boolconst    true|false
+id           {letter}({letter}|{digit})*
+newline      \n
 
 %%
 
-{newline} {linenumber++;}
-{spacing} ;
-program  {return PROGRAM;}
-end      {return END;}
-if       {return IF;}
-then     {return THEN;}
-else     {return ELSE;}
-while    {return WHILE;}
-do       {return DO;}
-read     {return READ;}
-write    {return WRITE;}
-and      {return AND;}
-or       {return OR;}
-not      {return NOT;}
+{newline}    {linenumber++;}
+{spacing}    ;
+program      {return PROGRAM;}
+end          {return END;}
+if           {return IF;}
+then         {return THEN;}
+else         {return ELSE;}
+while        {return WHILE;}
+do           {return DO;}
+read         {return READ;}
+write        {return WRITE;}
+and          {return AND;}
+or           {return OR;}
+not          {return NOT;}
 
-"<="       {return LTE;}
-">="       {return GTE;}
-"=="       {return COMPARISON;}
-"!="       {return DIFFER;}
+"<="         {return LTE;}
+">="         {return GTE;}
+"=="         {return COMPARISON;}
+"!="         {return DIFFER;}
 
 
 [=<>+/\-\*,:;\[\]\(\)\{\}]      {return yytext[0];}
@@ -128,22 +129,21 @@ extend       {return EXTEND;}
 rename       {return RENAME;}
 
 
+integer      {return INT;}
+string       {return STRING;}
+boolean      {return BOOL;}
+table	     {return TABLE;}
+{intconst}   {lexval.ival = atoi(yytext); return INTCONST;}
+{strconst}   {lexval.sval = newstring(yytext); return STRCONST;}
+{boolconst}  {lexval.ival = (yytext[0] == 'f' ? 0 : 1); return BOOLCONST;}
 
-integer	{return INT;}
-string	{return STRING;}
-boolean	{return BOOL;}
-table	{return TABLE;}
-{intconst}  {lexval.ival = atoi(yytext); return INTCONST;}
-{strconst}  {lexval.sval = newstring(yytext); return STRCONST;}
-{boolconst} {lexval.ival = (yytext[0] == 'f' ? 0 : 1); return BOOLCONST;}
+{id}         {lexval.sval = newstring(yytext); return ID;}
 
-{id}        {lexval.sval = newstring(yytext); return ID;}
+             /* End of file */
+<<EOF>>      {return MY_EOF;}
 
-            /* End of file */
-<<EOF>>     {return MY_EOF;}
-
-            /* Default action */
-.           {return ERROR;}
+             /* Default action */
+.            {return ERROR;}
 
 %%
 
