@@ -92,6 +92,7 @@ strconst     \"([^\"])*\"
 boolconst    true|false
 id           {letter}({letter}|{digit})*
 newline      \n
+sugar        [=<>+/\-\*,:;\[\]\(\)\{\}]
 
 %%
 
@@ -115,9 +116,7 @@ not          {return NOT;}
 "=="         {return COMPARISON;}
 "!="         {return DIFFER;}
 
-
-[=<>+/\-\*,:;\[\]\(\)\{\}]      {return yytext[0];}
-
+{sugar}      {return yytext[0];}
 
 project      {return PROJECT;}
 select       {return SELECT;}
