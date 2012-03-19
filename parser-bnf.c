@@ -66,12 +66,6 @@ void parse_stat_list() {
 
 void parse_stat() {
 	debug("Sono in parse stat\n");
-	// def stat: ...
-	// assign stat: ID
-	// if stat: IF
-	// while: WHILE
-	// read: READ
-	// write: WRITE
 	if (lookahead == ID) {
 		// Assegnamento o definizione.
 		next();
@@ -79,7 +73,6 @@ void parse_stat() {
 			// Dovrei fare backtracking, ma facciamo invece iniziare
 			// le due funzioni come se avessero gia' mangiato un token.
 			// => SOLUZIONE SPORCHISSIMA
-			// NO, non fattibile.
 			parse_assign_stat();
 		}
 		else {
@@ -119,6 +112,7 @@ void parse_id_list(char skip_first_id) {
 			parse_id_list(0);
 		}
 	}
+	// WARNING: questo skip e' un bruttissimo hack.
 	else if (skip_first_id && lookahead == ',') {
 		next();
 		parse_id_list(0);

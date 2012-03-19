@@ -81,20 +81,3 @@ table	     {return TABLE;}
 .            {return ERROR;}
 
 %%
-
-/*
-main()
-{
-	printf("##################################\n");
-	int result;
-	while ((result = yylex()) != MY_EOF) {
-		if (result == ERROR) {
-			printf("Line %d: %s <-- ERROR!!!\n", linenumber, yytext);
-		}
-		else {
-			printf("Line %d: %d (%s)\n", linenumber, result, yytext);
-		}
-	}
-	printf("Fine.\n");
-}
-*/
