@@ -332,42 +332,72 @@ void parse_unary_op() {
 
 void parse_join_op() {
 	debug("Sono in parse join op\n");
-	// TODO
+	match(JOIN);
+	match('[');
+	parse_expr();
+	match(']');
 }
 
 void parse_project_op() {
 	debug("Sono in parse project op\n");
-	// TODO
+	match(PROJECT);
+	match('[');
+	parse_id_list(0);
+	match(']');
 }
 
 void parse_select_op() {
 	debug("Sono in parse select op\n");
-	// TODO
+	match(SELECT);
+	match('[');
+	parse_expr();
+	match(']');
 }
 
 void parse_exists_op() {
 	debug("Sono in parse exists op\n");
-	// TODO
+	match(EXISTS);
+	match('[');
+	parse_expr();
+	match(']');
 }
 
 void parse_all_op() {
 	debug("Sono in parse all op\n");
-	// TODO
+	match(ALL);
+	match('[');
+	parse_expr();
+	match(']');
 }
 
 void parse_extend_op() {
 	debug("Sono in parse extend op\n");
-	// TODO
+	match(EXTEND);
+	match('[');
+	match(ID);
+	match(':');
+	parse_atomic_type();
+	match('=');
+	parse_expr();
+	match(']');
 }
 
 void parse_update_op() {
 	debug("Sono in parse update op\n");
-	// TODO
+	match(UPDATE);
+	match('[');
+	match(ID);
+	match('=');
+	parse_expr();
+	match(']');
 }
 
 void parse_rename_op() {
 	debug("Sono in parse rename op\n");
-	// TODO
+	match(RENAME);
+	match('[');
+	parse_id_list(0);
+	match(']');
 }
 
 void parse_const() {
@@ -431,30 +461,50 @@ void parse_atomic_const_list() {
 
 void parse_if_stat() {
 	debug("Sono in parse if stat\n");
-	// TODO
+	match(IF);
+	parse_expr();
+	match(THEN);
+	parse_stat_list();
+	parse_else_part();
+	match(END);
 }
 
 void parse_else_part() {
 	debug("Sono in parse else part\n");
-	// TODO
+	if (lookahead == ELSE) {
+		next();
+		parse_stat_list();
+	}
 }
 
 void parse_while_stat() {
 	debug("Sono in parse while stat\n");
-	// TODO
+	match(WHILE);
+	parse_expr();
+	match(DO);
+	parse_stat_list();
+	match(END);
 }
 
 void parse_read_stat() {
 	debug("Sono in parse read stat\n");
-	// TODO
+	match(READ);
+	parse_specifier();
+	match(ID);
 }
 
 void parse_specifier() {
 	debug("Sono in parse specifier\n");
-	// TODO
+	if (lookahead == '[') {
+		next();
+		parse_expr();
+		match(']');
+	}
 }
 
 void parse_write_stat() {
 	debug("Sono in parse write stat\n");
-	// TODO
+	match(WRITE);
+	parse_specifier();
+	parse_expr();
 }
