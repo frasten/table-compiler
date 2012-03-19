@@ -12,6 +12,14 @@ void debug(const char* str) {
 	printf("lookahead = %d\n", lookahead);
 }
 
+void whereami(const char* funcname) {
+	const char* pattern = "Entering %s()\n";
+	char* tmp = malloc(strlen(funcname) + strlen(pattern) - 2);
+	sprintf(tmp, pattern, funcname);
+	debug(tmp);
+	free(tmp);
+}
+
 int main() {
 	linenumber = 1;
 	parse();
@@ -53,14 +61,14 @@ void match(int what) {
 }
 
 void parse_program() {
-	debug("Sono in parse program\n");
+	whereami(__func__);
 	match(PROGRAM);
 	parse_stat_list();
 	match(END);
 }
 
 void parse_stat_list() {
-	debug("Sono in parse stat list\n");
+	whereami(__func__);
 	parse_stat();
 	while (lookahead == ';') {
 		match(';');
@@ -69,7 +77,7 @@ void parse_stat_list() {
 }
 
 void parse_stat() {
-	debug("Sono in parse stat\n");
+	whereami(__func__);
 	if (lookahead == ID) {
 		// Assegnamento o definizione.
 		next();
@@ -101,14 +109,14 @@ void parse_stat() {
 }
 
 void parse_def_stat() {
-	debug("Sono in parse def stat\n");
+	whereami(__func__);
 	parse_id_list(1);
 	match(':');
 	parse_type();
 }
 
 void parse_id_list(char skip_first_id) {
-	debug("Sono in parse id list\n");
+	whereami(__func__);
 	// WARNING: questo skip e' un bruttissimo hack.
 	if (!skip_first_id) {
 		match(ID);
@@ -120,7 +128,7 @@ void parse_id_list(char skip_first_id) {
 }
 
 void parse_type() {
-	debug("Sono in parse type\n");
+	whereami(__func__);
 	if (lookahead == INT ||
 		lookahead == STRING ||
 		lookahead == BOOL) {
@@ -132,7 +140,7 @@ void parse_type() {
 }
 
 void parse_atomic_type() {
-	debug("Sono in parse atomic type\n");
+	whereami(__func__);
 	if (lookahead == INT ||
 		lookahead == STRING ||
 		lookahead == BOOL) {
@@ -144,7 +152,7 @@ void parse_atomic_type() {
 }
 
 void parse_table_type() {
-	debug("Sono in parse table type\n");
+	whereami(__func__);
 	match(TABLE);
 	match('(');
 	parse_attr_list();
@@ -152,7 +160,7 @@ void parse_table_type() {
 }
 
 void parse_attr_list() {
-	debug("Sono in parse attr list\n");
+	whereami(__func__);
 	parse_attr_decl();
 	while (lookahead == ',') {
 		next();
@@ -161,21 +169,21 @@ void parse_attr_list() {
 }
 
 void parse_attr_decl() {
-	debug("Sono in parse attr decl\n");
+	whereami(__func__);
 	match(ID);
 	match(':');
 	parse_atomic_type();
 }
 
 void parse_assign_stat() {
-	debug("Sono in parse assign stat\n");
+	whereami(__func__);
 	//match(ID);
 	match('=');
 	parse_expr();
 }
 
 void parse_expr() {
-	debug("Sono in parse expr\n");
+	whereami(__func__);
 	parse_bool_term();
 	while (lookahead == AND || lookahead == OR) {
 		next();
@@ -184,7 +192,7 @@ void parse_expr() {
 }
 
 void parse_bool_term() {
-	debug("Sono in parse bool term\n");
+	whereami(__func__);
 	parse_comp_term();
 	if (lookahead == COMPARISON ||
 		lookahead == DIFFER ||
@@ -199,7 +207,7 @@ void parse_bool_term() {
 }
 
 void parse_comp_term() {
-	debug("Sono in parse comp term\n");
+	whereami(__func__);
 	parse_low_term();
 	while (lookahead == PLUS || lookahead == MINUS) {
 		next();
@@ -208,7 +216,7 @@ void parse_comp_term() {
 }
 
 void parse_low_term() {
-	debug("Sono in parse low term\n");
+	whereami(__func__);
 	parse_factor();
 	while (lookahead == MULTIPLY ||
 		lookahead == DIVIDE ||
@@ -224,7 +232,7 @@ void parse_low_term() {
 }
 
 void parse_factor() {
-	debug("Sono in parse factor\n");
+	whereami(__func__);
 	if (lookahead == ID) {
 		next();
 	}
@@ -246,7 +254,7 @@ void parse_factor() {
 }
 
 void parse_unary_op() {
-	debug("Sono in parse unary op\n");
+	whereami(__func__);
 	if (lookahead == MINUS || lookahead == NOT) {
 		next();
 	}
@@ -277,7 +285,7 @@ void parse_unary_op() {
 }
 
 void parse_join_op() {
-	debug("Sono in parse join op\n");
+	whereami(__func__);
 	match(JOIN);
 	match('[');
 	parse_expr();
@@ -285,7 +293,7 @@ void parse_join_op() {
 }
 
 void parse_project_op() {
-	debug("Sono in parse project op\n");
+	whereami(__func__);
 	match(PROJECT);
 	match('[');
 	parse_id_list(0);
@@ -293,7 +301,7 @@ void parse_project_op() {
 }
 
 void parse_select_op() {
-	debug("Sono in parse select op\n");
+	whereami(__func__);
 	match(SELECT);
 	match('[');
 	parse_expr();
@@ -301,7 +309,7 @@ void parse_select_op() {
 }
 
 void parse_exists_op() {
-	debug("Sono in parse exists op\n");
+	whereami(__func__);
 	match(EXISTS);
 	match('[');
 	parse_expr();
@@ -309,7 +317,7 @@ void parse_exists_op() {
 }
 
 void parse_all_op() {
-	debug("Sono in parse all op\n");
+	whereami(__func__);
 	match(ALL);
 	match('[');
 	parse_expr();
@@ -317,7 +325,7 @@ void parse_all_op() {
 }
 
 void parse_extend_op() {
-	debug("Sono in parse extend op\n");
+	whereami(__func__);
 	match(EXTEND);
 	match('[');
 	match(ID);
@@ -329,7 +337,7 @@ void parse_extend_op() {
 }
 
 void parse_update_op() {
-	debug("Sono in parse update op\n");
+	whereami(__func__);
 	match(UPDATE);
 	match('[');
 	match(ID);
@@ -339,7 +347,7 @@ void parse_update_op() {
 }
 
 void parse_rename_op() {
-	debug("Sono in parse rename op\n");
+	whereami(__func__);
 	match(RENAME);
 	match('[');
 	parse_id_list(0);
@@ -347,7 +355,7 @@ void parse_rename_op() {
 }
 
 void parse_const() {
-	debug("Sono in parse const\n");
+	whereami(__func__);
 	if (lookahead == INTCONST ||
 		lookahead == STRCONST ||
 		lookahead == BOOLCONST) {
@@ -362,7 +370,7 @@ void parse_const() {
 }
 
 void parse_atomic_const() {
-	debug("Sono in parse atomic const\n");
+	whereami(__func__);
 	if (lookahead == INTCONST ||
 		lookahead == STRCONST ||
 		lookahead == BOOLCONST) {
@@ -371,7 +379,7 @@ void parse_atomic_const() {
 }
 
 void parse_table_const() {
-	debug("Sono in parse table const\n");
+	whereami(__func__);
 	match('{');
 	while (lookahead == '(') {
 		parse_tuple_const();
@@ -380,7 +388,7 @@ void parse_table_const() {
 }
 
 void parse_tuple_const() {
-	debug("Sono in parse tuple const\n");
+	whereami(__func__);
 	match('(');
 	parse_atomic_const();
 	while (lookahead == ',') {
@@ -391,7 +399,7 @@ void parse_tuple_const() {
 }
 
 void parse_if_stat() {
-	debug("Sono in parse if stat\n");
+	whereami(__func__);
 	match(IF);
 	parse_expr();
 	match(THEN);
@@ -404,7 +412,7 @@ void parse_if_stat() {
 }
 
 void parse_while_stat() {
-	debug("Sono in parse while stat\n");
+	whereami(__func__);
 	match(WHILE);
 	parse_expr();
 	match(DO);
@@ -413,14 +421,14 @@ void parse_while_stat() {
 }
 
 void parse_read_stat() {
-	debug("Sono in parse read stat\n");
+	whereami(__func__);
 	match(READ);
 	parse_specifier();
 	match(ID);
 }
 
 void parse_specifier() {
-	debug("Sono in parse specifier\n");
+	whereami(__func__);
 	if (lookahead == '[') {
 		next();
 		parse_expr();
@@ -429,7 +437,7 @@ void parse_specifier() {
 }
 
 void parse_write_stat() {
-	debug("Sono in parse write stat\n");
+	whereami(__func__);
 	match(WRITE);
 	parse_specifier();
 	parse_expr();
