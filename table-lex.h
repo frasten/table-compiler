@@ -1,3 +1,6 @@
+#ifndef __TABLE_LEX_H
+#define __TABLE_LEX_H
+
 typedef union {int ival; char *sval; } Lexval;
 
 #define INT 258
@@ -60,3 +63,9 @@ typedef union {int ival; char *sval; } Lexval;
 
 #define MY_EOF 300
 #define ERROR 301
+
+int linenumber;
+
+
+#else
+#endif

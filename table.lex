@@ -14,7 +14,6 @@ char* newstring(char* str) {
 
 
 Lexval lexval;
-int linenumber = 1;
 
 %}
 %option	noyywrap
@@ -83,7 +82,7 @@ table	     {return TABLE;}
 
 %%
 
-
+/*
 main()
 {
 	printf("##################################\n");
@@ -98,3 +97,4 @@ main()
 	}
 	printf("Fine.\n");
 }
+*/
