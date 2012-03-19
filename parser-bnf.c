@@ -433,12 +433,8 @@ void parse_table_const() {
 
 void parse_tuple_list() {
 	debug("Sono in parse tuple list\n");
-	if (lookahead == '}') {
-		return; // Senza consumarlo
-	}
-	else {
+	if (lookahead == '(') {
 		parse_tuple_const();
-		match(',');
 		parse_tuple_list();
 	}
 }
