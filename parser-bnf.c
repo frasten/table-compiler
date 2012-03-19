@@ -15,6 +15,10 @@ void debug(const char* str) {
 int main() {
 	linenumber = 1;
 	parse();
+	if (lookahead != MY_EOF) {
+		printf("Line %d: Syntax error. Found garbage data at the end of the file.\n", linenumber);
+		return 1;
+	}
 	return 0;
 }
 
