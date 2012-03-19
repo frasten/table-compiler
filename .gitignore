@@ -1,2 +1,5 @@
 table-lex
 table-lex.c
+*.o
+lex.h
+parser-bnf
