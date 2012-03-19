@@ -92,7 +92,7 @@ void parse_stat() {
 		parse_write_stat();
 	}
 	else {
-		parse_def_stat();
+		parseerror();
 	}
 }
 
