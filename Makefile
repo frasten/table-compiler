@@ -1,4 +1,4 @@
-all: parser-bnf
+all: parser-ebnf
 
 table-lex.o: table-lex.c
 	gcc table-lex.c -c -o table-lex.o
@@ -8,6 +8,9 @@ table-lex.c:
 
 parser-bnf: table-lex.o
 	gcc table-lex.o parser-bnf.c -o parser-bnf
+
+parser-ebnf: table-lex.o
+	gcc table-lex.o parser-ebnf.c -o parser-ebnf
 
 clean:
 	rm -f table-lex table-lex.c parser-bnf lex.h
