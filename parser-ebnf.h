@@ -7,7 +7,7 @@ void parse_program();
 void parse_stat_list();
 void parse_stat();
 void parse_def_stat();
-void parse_id_list(char skip_first_id);
+void parse_id_list();
 void parse_type();
 void parse_atomic_type();
 void parse_table_type();

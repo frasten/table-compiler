@@ -49,6 +49,7 @@ void next() {
 
 void parseerror() {
 	printf("Syntax error @line %d: %s\n", linenumber, yytext);
+	next();
 }
 
 void match(int what) {
@@ -71,56 +72,50 @@ void parse_stat_list() {
 	whereami(__func__);
 	parse_stat();
 	while (lookahead == ';') {
-		match(';');
+		next();
 		parse_stat();
 	}
 }
 
 void parse_stat() {
 	whereami(__func__);
-	if (lookahead == ID) {
-		// Assegnamento o definizione.
-		next();
-		if (lookahead == '=') {
-			// Dovrei fare backtracking, ma facciamo invece iniziare
-			// le due funzioni come se avessero gia' mangiato un token.
-			// => SOLUZIONE SPORCHISSIMA
-			parse_assign_stat();
-		}
-		else {
+	switch (lookahead) {
+		case INT:
+		case STRING:
+		case BOOL:
+		case TABLE:
+			/* def-stat */
 			parse_def_stat();
-		}
-	}
-	else if (lookahead == IF) {
-		parse_if_stat();
-	}
-	else if (lookahead == WHILE) {
-		parse_while_stat();
-	}
-	else if (lookahead == READ) {
-		parse_read_stat();
-	}
-	else if (lookahead == WRITE) {
-		parse_write_stat();
-	}
-	else {
-		parseerror();
+			break;
+		case ID:
+			parse_assign_stat();
+			break;
+		case IF:
+			parse_if_stat();
+			break;
+		case WHILE:
+			parse_while_stat();
+			break;
+		case READ:
+			parse_read_stat();
+			break;
+		case WRITE:
+			parse_write_stat();
+			break;
+		default:
+			parseerror();
 	}
 }
 
 void parse_def_stat() {
 	whereami(__func__);
-	parse_id_list(1);
-	match(':');
 	parse_type();
+	parse_id_list();
 }
 
-void parse_id_list(char skip_first_id) {
+void parse_id_list() {
 	whereami(__func__);
-	// WARNING: questo skip e' un bruttissimo hack.
-	if (!skip_first_id) {
-		match(ID);
-	}
+	match(ID);
 	while (lookahead == ',') {
 		next();
 		match(ID);
@@ -129,25 +124,30 @@ void parse_id_list(char skip_first_id) {
 
 void parse_type() {
 	whereami(__func__);
-	if (lookahead == INT ||
-		lookahead == STRING ||
-		lookahead == BOOL) {
-		parse_atomic_type();
-	}
-	else {
-		parse_table_type();
+	switch (lookahead) {
+		case INT:
+		case STRING:
+		case BOOL:
+			parse_atomic_type();
+			break;
+		case TABLE:
+			parse_table_type();
+			break;
+		default:
+			parseerror();
 	}
 }
 
 void parse_atomic_type() {
 	whereami(__func__);
-	if (lookahead == INT ||
-		lookahead == STRING ||
-		lookahead == BOOL) {
-		next();
-	}
-	else {
-		parseerror();
+	switch (lookahead) {
+		case INT:
+		case STRING:
+		case BOOL:
+			next();
+			break;
+		default:
+			parseerror();
 	}
 }
 
@@ -170,14 +170,13 @@ void parse_attr_list() {
 
 void parse_attr_decl() {
 	whereami(__func__);
-	match(ID);
-	match(':');
 	parse_atomic_type();
+	match(ID);
 }
 
 void parse_assign_stat() {
 	whereami(__func__);
-	//match(ID);
+	match(ID);
 	match('=');
 	parse_expr();
 }
@@ -233,54 +232,57 @@ void parse_low_term() {
 
 void parse_factor() {
 	whereami(__func__);
-	if (lookahead == ID) {
-		next();
-	}
-	else if (lookahead == '(') {
-		match('(');
-		parse_expr();
-		match(')');
-	}
-	else if (lookahead == INTCONST ||
-		lookahead == STRCONST ||
-		lookahead == BOOLCONST ||
-		lookahead == '{') {
-		parse_const();
-	}
-	else {
-		parse_unary_op();
-		parse_factor();
+	switch (lookahead) {
+		case ID:
+			next();
+			break;
+		case '(':
+			next();
+			parse_expr();
+			match(')');
+			break;
+		case INTCONST:
+		case STRCONST:
+		case BOOLCONST:
+		case '{':
+			parse_const();
+			break;
+		default:
+			parse_unary_op();
+			parse_factor();
 	}
 }
 
 void parse_unary_op() {
 	whereami(__func__);
-	if (lookahead == MINUS || lookahead == NOT) {
-		next();
-	}
-	else if (lookahead == PROJECT) {
-		parse_project_op();
-	}
-	else if (lookahead == SELECT) {
-		parse_select_op();
-	}
-	else if (lookahead == EXISTS) {
-		parse_exists_op();
-	}
-	else if (lookahead == ALL) {
-		parse_all_op();
-	}
-	else if (lookahead == EXTEND) {
-		parse_extend_op();
-	}
-	else if (lookahead == UPDATE) {
-		parse_update_op();
-	}
-	else if (lookahead == RENAME) {
-		parse_rename_op();
-	}
-	else {
-		parseerror();
+	switch (lookahead) {
+		case MINUS:
+		case NOT:
+			next();
+			break;
+		case PROJECT:
+			parse_project_op();
+			break;
+		case SELECT:
+			parse_select_op();
+			break;
+		case EXISTS:
+			parse_exists_op();
+			break;
+		case ALL:
+			parse_all_op();
+			break;
+		case EXTEND:
+			parse_extend_op();
+			break;
+		case UPDATE:
+			parse_update_op();
+			break;
+		case RENAME:
+			parse_rename_op();
+			break;
+		default:
+			parseerror();
 	}
 }
 
@@ -296,7 +298,7 @@ void parse_project_op() {
 	whereami(__func__);
 	match(PROJECT);
 	match('[');
-	parse_id_list(0);
+	parse_id_list();
 	match(']');
 }
 
@@ -328,9 +330,8 @@ void parse_extend_op() {
 	whereami(__func__);
 	match(EXTEND);
 	match('[');
-	match(ID);
-	match(':');
 	parse_atomic_type();
+	match(ID);
 	match('=');
 	parse_expr();
 	match(']');
@@ -350,22 +351,23 @@ void parse_rename_op() {
 	whereami(__func__);
 	match(RENAME);
 	match('[');
-	parse_id_list(0);
+	parse_id_list();
 	match(']');
 }
 
 void parse_const() {
 	whereami(__func__);
-	if (lookahead == INTCONST ||
-		lookahead == STRCONST ||
-		lookahead == BOOLCONST) {
-		parse_atomic_const();
-	}
-	else if (lookahead == '{') {
-		parse_table_const();
-	}
-	else {
-		parseerror();
+	switch (lookahead) {
+		case INTCONST:
+		case STRCONST:
+		case BOOLCONST:
+			parse_atomic_const();
+			break;
+		case '{':
+			parse_table_const();
+			break;
+		default:
+			parseerror();
 	}
 }
 
@@ -376,12 +378,19 @@ void parse_atomic_const() {
 		lookahead == BOOLCONST) {
 		next();
 	}
+	else {
+		parseerror();
+	}
 }
 
 void parse_table_const() {
 	whereami(__func__);
 	match('{');
-	while (lookahead == '(') {
+	while (lookahead == '(' || lookahead == ',') {
+		if (lookahead == ',') {
+			next();
+			continue;
+		}
 		parse_tuple_const();
 	}
 	match('}');
