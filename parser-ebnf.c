@@ -30,7 +30,7 @@ int main() {
 	return 0;
 }
 
-int parse() {
+void parse() {
 	next();
 	parse_program();
 }

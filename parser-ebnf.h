@@ -1,4 +1,4 @@
-int parse();
+void parse();
 void next();
 void parseerror();
 void match(int what);
