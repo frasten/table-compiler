@@ -1,16 +1,35 @@
-all: parser-ebnf
+WFLAGS=-Wall -Wextra
+CFLAGS=-g $(WFLAGS)
 
-table-lex.o: table-lex.c
-	gcc table-lex.c -g -c -o table-lex.o
+GCC=$(shell which gcc)
+
+SOURCES=$(shell ls *.c)
+OBJECTS=$(SOURCES:.c=.o)
+EXECUTABLE=compiler
+
+#V=1
+
+# from Lauri Leukkunen's build system
+ifdef V
+  Q = 
+  P = @printf "" # <- space before hash is important!!!
+else
+  P = @printf "[%s] $@\n" # <- space before hash is important!!!
+  Q = @
+endif
+
+all: $(EXECUTABLE)
+
+$(EXECUTABLE): table-lex.o $(OBJECTS)
+	$(P)LD
+	$(Q)$(GCC) $(LIBS) $(CFLAGS) -o $@ ${OBJECTS}
+
+%.o:: %.c
+	$(P)CC
+	$(Q)$(GCC) $(CFLAGS) -c -o $@ $<
 
 table-lex.c:
 	lex -o table-lex.c --header-file=lex.h table.lex
 
-parser-bnf: table-lex.o
-	gcc table-lex.o parser-bnf.c -g -o parser-bnf
-
-parser-ebnf: table-lex.o
-	gcc table-lex.o parser-ebnf.c -g -o parser-ebnf
-
 clean:
-	rm -f table-lex table-lex.c parser-bnf lex.h parser-bnf parser-ebnf
+	rm -f *.o $(EXECUTABLE) table-lex.c lex.h

@@ -4,3 +4,4 @@ table-lex.c
 lex.h
 parser-bnf
 parser-ebnf
+compiler
