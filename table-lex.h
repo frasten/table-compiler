@@ -1,8 +1,6 @@
 #ifndef __TABLE_LEX_H
 #define __TABLE_LEX_H
 
-typedef union {int ival; char *sval; } Lexval;
-
 #define INT 258
 #define STRING 259
 #define BOOL 260

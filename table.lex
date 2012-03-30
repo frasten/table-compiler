@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "table-lex.h"
+#include "node.h"
 
 
 char* newstring(char* str) {
@@ -13,7 +14,7 @@ char* newstring(char* str) {
 }
 
 
-Lexval lexval;
+Value lexval;
 
 %}
 %option	noyywrap
