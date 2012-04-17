@@ -74,15 +74,18 @@ typedef Node *Pnode;
 #define CHILDREN_TREE_LIMIT 100
 unsigned char children[CHILDREN_TREE_LIMIT];
 
+
 /* Function prototypes */
-Pnode nontermnode(Nonterminal nonterm);
 void print_tree(Pnode p, int level);
 void print_node(Pnode p);
+
 Pnode idnode();
 Pnode keynode(Typenode keyword);
 Pnode intconstnode();
 Pnode strconstnode();
 Pnode boolconstnode();
+Pnode nontermnode(Nonterminal nonterm);
+
 
 #else
 #endif
