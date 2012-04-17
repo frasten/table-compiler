@@ -24,14 +24,32 @@ void whereami(const char* funcname) {
 }
 
 int main() {
+	int i;
+	// Reset tree data
+	for (i = 0; i < CHILDREN_TREE_LIMIT; i++) {
+		children[i] = 0;
+	}
+
+	printf("\nCompiling, please wait..\n");
 	linenumber = 1;
+	errors = 0;
 	parse();
+
 	print_tree(root, 0);
+
 	if (lookahead != MY_EOF) {
 		printf("Line %d: Syntax error. Found garbage data at the end of the file.\n", linenumber);
+		errors++;
+	}
+
+	if (errors == 0) {
+		printf("Compilation successful.\n\n");
+		return 0;
+	}
+	else {
+		printf("Compilation unsuccessful, %i errors.\n\n", errors);
 		return 1;
 	}
-	return 0;
 }
 
 void parse() {
@@ -44,11 +62,13 @@ void next() {
 	lookahead = yylex();
 	if (lookahead == ERROR) {
 		printf("Line %d: %s <-- ERROR!!!\n", linenumber, yytext);
+		errors++;
 	}
 	//printf("Line %d: %d (%s)\n", linenumber, result, yytext);
 }
 
 void parseerror() {
+	errors++;
 	printf("Syntax error @line %d: %s\n", linenumber, yytext);
 	next();
 }
@@ -59,6 +79,7 @@ void match(int what) {
 	}
 	else {
 		printf("Syntax error @line %d: %s. Expected %d - %c\n", linenumber, yytext, what, what);
+		errors++;
 	}
 }
 

@@ -57,8 +57,39 @@ Pnode boolconstnode() {
 }
 
 void print_tree(Pnode p, int level) {
+	char connector;
+	int i;
+
+	for (i = 0; i < level; i++) {
+		if (children[i] == 1) {
+			printf("| ");
+		}
+		else {
+			printf("  ");
+		}
+	}
+
+	if (p->brother != NULL) {
+		children[level] = 1;
+	}
+	else {
+		children[level] = 0;
+	}
+
 	// Print this node
-	print_node(p, level);
+	if (p->brother == NULL)
+		connector = '`';
+	else if (children[level] == 1)
+		connector = '+';
+	else
+		connector = '|';
+
+	printf("%c-> ", connector);
+	print_node(p);
+	printf("\n");
+
+
+
 
 	// Children
 	if (p->child != NULL) {
@@ -69,20 +100,13 @@ void print_tree(Pnode p, int level) {
 	if (p->brother != NULL) {
 		print_tree(p->brother, level);
 	}
+
+	children[level] = 0;
 }
 
-void print_node(Pnode p, int level) {
-	int i;
-	char connector;
-
-	for (i = 0; i < level; i++) {
-		printf("  ");
-	}
+void print_node(Pnode p) {
 
 	// ID (a)
-	connector = (p->brother == NULL ? '`' : '|');
-	printf("%c-> ", connector);
-
 	switch (p->type) {
 		case T_INTEGER:   printf("INTEGER"); break;
 		case T_STRING:    printf("STRING");  break;
@@ -137,5 +161,4 @@ void print_node(Pnode p, int level) {
 			break;
 		default:          printf("xxxNODOxxx"); break;
 	}
-	printf("\n");
 }

@@ -39,3 +39,4 @@ Pnode parse_read_stat();
 Pnode parse_specifier();
 Pnode parse_write_stat();
 
+int errors;
