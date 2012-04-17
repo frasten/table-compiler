@@ -274,9 +274,8 @@ Pnode parse_expr() {
 	head = p = nontermnode(NBOOL_TERM);
 	head->child = parse_bool_term();
 	while (lookahead == AND || lookahead == OR) {
-		next();
-		// TODO: BUG ho un and, e invece mi appare un nodo OR.
 		p->brother = keynode(lookahead == AND ? T_AND : T_OR);
+		next();
 		p = p->brother;
 		p->brother = nontermnode(NBOOL_TERM);
 		p->brother->child = parse_bool_term();
