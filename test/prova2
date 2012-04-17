@@ -1,0 +1,4 @@
+program
+a = not b;
+b = -2
+end
