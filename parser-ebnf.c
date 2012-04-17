@@ -387,8 +387,11 @@ Pnode parse_unary_op() {
 	whereami(__func__);
 	switch (lookahead) {
 		case MINUS:
+			p = keynode(T_MINUS);
+			next();
+			break;
 		case NOT:
-			// TODO
+			p = keynode(T_NOT);
 			next();
 			break;
 		case PROJECT:

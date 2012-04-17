@@ -119,6 +119,8 @@ void print_node(Pnode p) {
 		case T_BOOLOP:    printf("BOOLOP (%s)", p->yytext); break;
 		case T_BINARY_OP: printf("%c", p->value.ival); break;
 		case T_ID:        printf("ID (%s)",   p->value.sval); break;
+		case T_NOT:       printf("NOT",   p->yytext); break;
+		case T_MINUS:     printf("%s",   p->yytext); break;
 		case T_NONTERMINAL:
 			switch(p->value.ival) {
 				case NPROGRAM: printf("PROGRAM"); break;

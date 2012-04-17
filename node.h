@@ -14,7 +14,9 @@ typedef enum {
 	T_BOOLCONST,
 	T_STRCONST,
 	T_ID,
-	T_NONTERMINAL
+	T_NONTERMINAL,
+	T_MINUS,
+	T_NOT
 } Typenode;
 
 typedef enum {
