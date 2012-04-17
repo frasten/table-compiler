@@ -64,6 +64,7 @@
 
 int linenumber;
 
+char* newstring(char* str);
 
 #else
 #endif

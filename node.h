@@ -25,13 +25,14 @@ typedef enum {
 	NSTAT_LIST,
 	NID_LIST,
 	NATTR_DECL,
+	NATTR_LIST,
 	NBOOL_TERM,
 	NCOMP_TERM,
 	NLOW_TERM,
 	NEXPR,
 	NFACTOR,
 	NJOIN_OP,
-	NDOMAIN,
+	NTYPE,
 	NASSIGN_STAT,
 	NIF_STAT,
 	NWHILE_STAT,
@@ -63,6 +64,7 @@ typedef struct snode {
 	Typenode type;
 	Value value;
 	struct snode *child, *brother;
+	char* yytext;
 } Node;
 
 typedef Node *Pnode;

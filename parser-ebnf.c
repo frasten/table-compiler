@@ -128,7 +128,7 @@ Pnode parse_def_stat() {
 	Pnode head;
 	// type -> idlist
 	whereami(__func__);
-	head = nontermnode(NDOMAIN);
+	head = nontermnode(NTYPE);
 	head->child = parse_type();
 	head->brother = nontermnode(NID_LIST);
 	head->brother->child = parse_id_list();
@@ -205,7 +205,8 @@ Pnode parse_table_type() {
 	whereami(__func__);
 	match(TABLE);
 	match('(');
-	p = parse_attr_list();
+	p = nontermnode(NATTR_LIST);
+	p->child = parse_attr_list();
 	match(')');
 	return p;
 }
@@ -253,6 +254,7 @@ Pnode parse_expr() {
 	head->child = parse_bool_term();
 	while (lookahead == AND || lookahead == OR) {
 		next();
+		// TODO: BUG ho un and, e invece mi appare un nodo OR.
 		p->brother = keynode(lookahead == AND ? T_AND : T_OR);
 		p = p->brother;
 		p->brother = nontermnode(NBOOL_TERM);
@@ -274,8 +276,8 @@ Pnode parse_bool_term() {
 		lookahead == LT ||
 		lookahead == LTE ||
 		lookahead == GT) {
-		next();
 		p->brother = keynode(T_BOOLOP);
+		next();
 		// TODO: probabilmente bug.
 		p = p->brother;
 		p->value.ival = lookahead;
@@ -292,6 +294,7 @@ Pnode parse_comp_term() {
 	head = p = nontermnode(NLOW_TERM);
 	head->child = parse_low_term();
 	while (lookahead == PLUS || lookahead == MINUS) {
+		// TODO: non appare nell'albero, e' vuoto.
 		next();
 		p->brother = keynode(T_BINARY_OP);
 		p = p->brother;

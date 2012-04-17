@@ -2,6 +2,8 @@
 #include <stdio.h>
 
 #include "node.h"
+#include "table-lex.h"
+#include "lex.h"
 
 extern Value lexval;
 
@@ -10,6 +12,7 @@ Pnode newnode(Typenode tnode) {
 	Pnode p;
 	p = (Pnode) malloc(sizeof(Node));
 	p->type = tnode;
+	p->yytext = newstring(yytext);
 	p->child = p->brother = NULL;
 	return(p);
 }
@@ -88,8 +91,8 @@ void print_node(Pnode p, int level) {
 		case T_OR:        printf("OR"); break;
 		case T_INTCONST:  printf("INT (%d)",  p->value.ival); break;
 		case T_STRCONST:  printf("STR (%s)",  p->value.sval); break;
-		case T_BOOLCONST: printf("BOOL (%d)", p->value.ival); break;
-		case T_BOOLOP:    printf("BOOLOP (%i)", p->value.ival); break;
+		case T_BOOLCONST: printf("BOOL (%s)", p->yytext); break;
+		case T_BOOLOP:    printf("BOOLOP (%s)", p->yytext); break;
 		case T_BINARY_OP: printf("%c", p->value.ival); break;
 		case T_ID:        printf("ID (%s)",   p->value.sval); break;
 		case T_NONTERMINAL:
@@ -99,6 +102,7 @@ void print_node(Pnode p, int level) {
 				case NEXPR: printf("EXPR"); break;
 				case NDEF_STAT: printf("DEF_STAT"); break;
 				case NDEF_LIST: printf("DEF_LIST"); break;
+				case NATTR_LIST: printf("ATTR_LIST"); break;
 				case NID_LIST: printf("ID_LIST"); break;
 				case NATTR_DECL: printf("ATTR_DECL"); break;
 				case NBOOL_TERM: printf("BOOL_TERM"); break;
@@ -114,7 +118,7 @@ void print_node(Pnode p, int level) {
 				case NRENAME_OP: printf("RENAME_OP"); break;
 				case NFACTOR: printf("FACTOR"); break;
 				case NJOIN_OP: printf("JOIN_OP"); break;
-				case NDOMAIN: printf("DOMAIN"); break;
+				case NTYPE: printf("TYPE"); break;
 				case NCONST: printf("CONST"); break;
 				case NSIMPLE_CONST: printf("ATOMIC_CONST"); break;
 				case NTABLE_CONST: printf("TABLE CONST"); break;
