@@ -314,11 +314,10 @@ Pnode parse_comp_term() {
 	head = p = nontermnode(NLOW_TERM);
 	head->child = parse_low_term();
 	while (lookahead == PLUS || lookahead == MINUS) {
-		// TODO: non appare nell'albero, e' vuoto.
-		next();
 		p->brother = keynode(T_BINARY_OP);
 		p = p->brother;
 		p->value.ival = lookahead;
+		next();
 		p->brother = nontermnode(NLOW_TERM);
 		p = p->brother;
 		p->child = parse_low_term();
