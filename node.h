@@ -54,7 +54,9 @@ typedef enum {
 	NALL_OP,
 	NEXTEND_OP,
 	NUPDATE_OP,
-	NRENAME_OP
+	NRENAME_OP,
+	NTUPLE_LIST,
+	NATOMIC_TYPE_LIST
 } Nonterminal;
 
 typedef union {

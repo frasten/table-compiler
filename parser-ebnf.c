@@ -566,27 +566,46 @@ Pnode parse_atomic_const() {
 }
 
 Pnode parse_table_const() {
-	Pnode p, q, head;
+	Pnode p;
 	whereami(__func__);
 	match('{');
-	p = head = NULL;
-	// TODO: Potrei iniziare con un "{,}", che non va bene!!!!!
-	while (lookahead == '(' || lookahead == ',') {
-		if (lookahead == ',') {
-			next();
-			continue;
-		}
-		q = nontermnode(NTUPLE_CONST);
-		if (p == NULL) {
-			head = p = q;
-		}
-		else {
-			p->brother = q;
-			p = p->brother;
-		}
-		p->child = parse_tuple_const();
+	if (lookahead == '(') {
+		p = nontermnode(NTUPLE_LIST);
+		p->child = parse_tuple_list();
+	}
+	else {
+		p = nontermnode(NATOMIC_TYPE_LIST);
+		p->child = parse_atomic_type_list();
 	}
 	match('}');
+	return p;
+}
+
+Pnode parse_tuple_list() {
+	Pnode p, head;
+	whereami(__func__);
+	head = p = nontermnode(NTUPLE_CONST);
+	p->child = parse_tuple_const();
+	while (lookahead == ',') {
+		next();
+		p->brother = nontermnode(NTUPLE_CONST);
+		p = p->brother;
+		p->child = parse_tuple_const();
+	}
+	return head;
+}
+
+Pnode parse_atomic_type_list() {
+	Pnode p, head;
+	whereami(__func__);
+	head = p = nontermnode(NATOMIC_TYPE);
+	p->child = parse_atomic_type();
+	while (lookahead == ',') {
+		next();
+		p->brother = nontermnode(NATOMIC_TYPE);
+		p = p->brother;
+		p->child = parse_atomic_type();
+	}
 	return head;
 }
 

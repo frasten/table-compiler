@@ -32,6 +32,8 @@ Pnode parse_rename_op();
 Pnode parse_const();
 Pnode parse_atomic_const();
 Pnode parse_table_const();
+Pnode parse_tuple_list();
+Pnode parse_atomic_type_list();
 Pnode parse_tuple_const();
 Pnode parse_if_stat();
 Pnode parse_while_stat();
