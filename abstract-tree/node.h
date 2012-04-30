@@ -63,8 +63,9 @@ typedef enum {
 typedef struct snode {
 	Typenode type;
 	Value value;
+	int line;
 	struct snode *child, *brother;
-	char* yytext;
+	//char* yytext;
 } Node;
 
 typedef Node *Pnode;

@@ -12,7 +12,7 @@ Pnode newnode(Typenode tnode) {
 	Pnode p;
 	p = (Pnode) malloc(sizeof(Node));
 	p->type = tnode;
-	p->yytext = newstring(yytext);
+	//p->yytext = newstring(yytext);
 	p->child = p->brother = NULL;
 	return(p);
 }
