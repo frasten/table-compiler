@@ -11,10 +11,12 @@ Pnode root = NULL;
 
 void yyerror(char* message);
 
+extern int linenumber;
+
 %}
 %token PROGRAM END IF THEN ELSE WHILE DO READ WRITE AND OR NOT LTE GTE COMPARISON
 %token DIFFER PROJECT SELECT EXISTS ALL JOIN UPDATE EXTEND RENAME INT STRING
-%token BOOL TABLE INTCONST STRCONST BOOLCONST ID MY_EOF ERROR
+%token BOOL TABLE INTCONST STRCONST BOOLCONST ID ERROR
 %%
 // GRAMMATICA
 	program : PROGRAM stat_list END
@@ -192,9 +194,11 @@ void yyerror(char* message);
 
 %%
 void yyerror(char* message) {
+	printf("Riga: %d near %s\n", linenumber, yytext);
 	fprintf(stderr, "%s\n", message);
 }
 
 int main() {
+	linenumber = 1;
 	return yyparse();
 }

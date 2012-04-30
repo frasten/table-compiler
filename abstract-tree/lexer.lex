@@ -75,9 +75,6 @@ table	     {return TABLE;}
 
 {id}         {lexval.sval = newstring(yytext); return ID;}
 
-             /* End of file */
-<<EOF>>      {return MY_EOF;}
-
              /* Default action */
 .            {return ERROR;}
 
