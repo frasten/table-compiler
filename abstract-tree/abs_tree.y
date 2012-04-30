@@ -224,5 +224,6 @@ int main() {
     linenumber = 1;
     yyparse();
     print_tree(root, 0);
+    print_tree_graphviz(root);
     return 0;
 }

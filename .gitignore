@@ -10,3 +10,5 @@ abstract-tree/abs_tree.c
 abstract-tree/abs_tree.h
 abstract-tree/lexer.c
 abstract-tree/lexer.h
+*.png
+*.dot

@@ -35,4 +35,4 @@ lexer.c: lexer.lex
 	lex -o lexer.c --header-file=lexer.h lexer.lex
 
 clean:
-	rm -f *.o $(EXECUTABLE) *.output abs_tree.c lexer.c lexer.h abs_tree.h
+	rm -f *.o $(EXECUTABLE) *.output abs_tree.c lexer.c lexer.h abs_tree.h *.dot *.png

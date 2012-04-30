@@ -76,7 +76,13 @@ unsigned char children[CHILDREN_TREE_LIMIT];
 
 /* Function prototypes */
 void print_tree(Pnode p, int level);
-void print_node(Pnode p);
+void print_tree_graphviz(Pnode p);
+void print_node_graphviz(Pnode p, Pnode parent);
+
+void graphviz_print_edge(Pnode p, Pnode q);
+void graphviz_print_node(Pnode p);
+
+char* get_node_string(Pnode p);
 
 Pnode idnode();
 Pnode keynode(Typenode keyword);

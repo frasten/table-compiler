@@ -1,1 +1,1 @@
-make clean && make && ./compiler < ../test/prova.table
+make clean && make && ./compiler < ../test/provasimple.table && dot -Tpng tree.dot > tree.png && open tree.png
