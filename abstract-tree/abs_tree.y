@@ -1,7 +1,11 @@
 %{
 // TODO	EVENTUALI INCLUDES
 #include <stdio.h>
+
 #include "lexer.h"
+#include "node.h"
+
+#define YYSTYPE Pnode
 
 void yyerror(char* message);
 
