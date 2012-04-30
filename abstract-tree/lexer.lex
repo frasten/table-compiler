@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "abs_tree.h"
+#include "symbols.h"
 
-//#include "table-lex.h"
 //#include "node.h"
 
 
@@ -14,8 +14,7 @@ char* newstring(char* str) {
 	return new;
 }
 
-
-//Value lexval;
+Value lexval;
 
 %}
 %option	noyywrap
@@ -34,7 +33,7 @@ sugar        [=<>+/\-\*,:;\[\]\(\)\{\}]
 
 %%
 
-{newline}    {/*linenumber++;*/}
+{newline}    {linenumber++;}
 {spacing}    ;
 program      {return PROGRAM;}
 end          {return END;}
@@ -70,11 +69,11 @@ integer      {return INT;}
 string       {return STRING;}
 boolean      {return BOOL;}
 table	     {return TABLE;}
-{intconst}   {/*lexval.ival = atoi(yytext);*/ return INTCONST;}
-{strconst}   {/*lexval.sval = newstring(yytext);*/ return STRCONST;}
-{boolconst}  {/*lexval.ival = (yytext[0] == 'f' ? 0 : 1);*/ return BOOLCONST;}
+{intconst}   {lexval.ival = atoi(yytext); return INTCONST;}
+{strconst}   {lexval.sval = newstring(yytext); return STRCONST;}
+{boolconst}  {lexval.ival = (yytext[0] == 'f' ? 0 : 1); return BOOLCONST;}
 
-{id}         {/*lexval.sval = newstring(yytext);*/ return ID;}
+{id}         {lexval.sval = newstring(yytext); return ID;}
 
              /* End of file */
 <<EOF>>      {return MY_EOF;}
