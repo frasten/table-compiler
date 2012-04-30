@@ -1,2 +1,2 @@
-set args < test/prova.table
+set args < ../test/prova.table
 run

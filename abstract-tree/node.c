@@ -1,18 +1,21 @@
 #include <stdlib.h>
-//#include <stdio.h>
+#include <stdio.h>
 
 #include "node.h"
 #include "lexer.h"
-#include "symbols.h"
+
+#define GRAPHVIZ_FILENAME "tree.dot"
 
 extern Value lexval;
+FILE* file_graphviz;
+
 
 
 Pnode newnode(Typenode tnode) {
 	Pnode p;
 	p = (Pnode) malloc(sizeof(Node));
 	p->type = tnode;
-	//p->yytext = newstring(yytext);
+	p->yytext = newstring(yytext);
 	p->child = p->brother = NULL;
 	return(p);
 }
@@ -62,7 +65,7 @@ Pnode boolconstnode() {
 	return(p);
 }
 
-/*
+
 void print_tree(Pnode p, int level) {
 	char connector;
 	int i;
@@ -173,4 +176,3 @@ void print_node(Pnode p) {
 		default:          printf("xxxNODOxxx"); break;
 	}
 }
-*/

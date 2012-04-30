@@ -1,5 +1,4 @@
 %{
-// TODO	EVENTUALI INCLUDES
 #include <stdio.h>
 
 #include "lexer.h"
@@ -19,35 +18,58 @@ extern int linenumber;
 %token BOOL TABLE INTCONST STRCONST BOOLCONST ID ERROR
 %%
 // GRAMMATICA
-	program : PROGRAM stat_list END
-	        ;
+    program : PROGRAM stat_list END {
+                  $$ = root = nontermnode(NPROGRAM);
+                  $$->child = nontermnode(NSTAT_LIST);
+                  $$->child->child = $2;
+              }
+            ;
 
-	stat_list : stat ';' stat_list
-	          | stat
-	          ;
+    stat_list : stat ';' stat_list {
+                    $$ = $1;
+                    $$->brother = $3;
+                }
+              | stat
+              ;
 
-	stat : def_stat
-	     | assign_stat
-	     | if_stat
-	     | while_stat
-	     | read_stat
-	     | write_stat
-	     ;
+    stat : def_stat
+         | assign_stat
+         | if_stat
+         | while_stat
+         | read_stat
+         | write_stat
+         ;
 
-	def_stat : type id_list
-	         ;
+    def_stat : type id_list {
+                   $$ = nontermnode(NDEF_STAT);
+                   $$->child = $1;
+                   $1->brother = $2;
+               }
+             ;
 
-    id_list : ID ',' id_list
-            | ID
+    id_list : ID {$$ = idnode();} ',' id_list {
+                  $$ = $2;
+                  $$->brother = $4;
+              }
+            | ID {$$ = idnode();}
             ;
 
     type : atomic_type
          | table_type
          ;
 
-    atomic_type : INT
-                | STRING
-                | BOOL
+    atomic_type : INT {
+                      $$ = nontermnode(NATOMIC_TYPE);
+                      $$->child = keynode(T_INTEGER);
+                  }
+                | STRING {
+                      $$ = nontermnode(NATOMIC_TYPE);
+                      $$->child = keynode(T_STRING);
+                  }
+                | BOOL {
+                      $$ = nontermnode(NATOMIC_TYPE);
+                      $$->child = keynode(T_BOOLEAN);
+                  }
                 ;
 
     table_type : TABLE '(' attr_list ')'
@@ -194,11 +216,13 @@ extern int linenumber;
 
 %%
 void yyerror(char* message) {
-	printf("Riga: %d near %s\n", linenumber, yytext);
-	fprintf(stderr, "%s\n", message);
+    printf("Riga: %d near %s\n", linenumber, yytext);
+    fprintf(stderr, "%s\n", message);
 }
 
 int main() {
-	linenumber = 1;
-	return yyparse();
+    linenumber = 1;
+    yyparse();
+    print_tree(root, 0);
+    return 0;
 }

@@ -65,21 +65,19 @@ typedef struct snode {
 	Value value;
 	int line;
 	struct snode *child, *brother;
-	//char* yytext;
+	char* yytext;
 } Node;
 
 typedef Node *Pnode;
-/*
+
 #define CHILDREN_TREE_LIMIT 100
 unsigned char children[CHILDREN_TREE_LIMIT];
-*/
+
 
 /* Function prototypes */
-/*
 void print_tree(Pnode p, int level);
 void print_node(Pnode p);
 
-*/
 Pnode idnode();
 Pnode keynode(Typenode keyword);
 Pnode intconstnode();
