@@ -7,6 +7,7 @@
 #define GRAPHVIZ_FILENAME "tree.dot"
 
 extern Value lexval;
+extern int linenumber;
 FILE* file_graphviz;
 
 
@@ -14,6 +15,7 @@ FILE* file_graphviz;
 Pnode newnode(Typenode tnode) {
 	Pnode p;
 	p = (Pnode) malloc(sizeof(Node));
+	p->line = linenumber;
 	p->type = tnode;
 	p->yytext = newstring(yytext);
 	p->child = p->brother = NULL;
@@ -52,7 +54,20 @@ Pnode intconstnode() {
 
 Pnode strconstnode() {
 	Pnode p;
+	int i;
+
 	p = newnode(T_STRCONST);
+
+	// Un finto escape delle virgolette
+	for (i = 0; ; i++) {
+		char c = lexval.sval[i];
+		if (c == '\0')
+			break;
+		if (c == '"') {
+			lexval.sval[i] = '`';
+		}
+	}
+
 	p->value.sval = lexval.sval;
 	return(p);
 }
@@ -160,6 +175,7 @@ void graphviz_print_edge(Pnode p, Pnode q) {
 void graphviz_print_node(Pnode p) {
 	char* msg;
 	msg = get_node_string(p);
+	// TODO: per le stringhe, se voglio stampare le "" non posso.
 	fprintf(file_graphviz, "\"%p\" [label=\"%s\"];\n", p, msg);
 	free(msg);
 }
@@ -170,17 +186,18 @@ char* get_node_string(Pnode p) {
 
 	// ID (a)
 	switch (p->type) {
-		case T_AND:         sprintf(msg, "%s", "AND");       break;
-		case T_OR:          sprintf(msg, "%s", "OR");        break;
-		case T_NOT:         sprintf(msg, "%s", "NOT");       break;
 		case T_INTCONST:    sprintf(msg, "INT (%d)",         p->value.ival); break;
 		case T_STRCONST:    sprintf(msg, "STR (%s)",         p->value.sval); break;
 		case T_BOOLCONST:   sprintf(msg, "BOOL (%s)",        p->yytext);     break;
 		case T_BOOLOP:      sprintf(msg, "BOOLOP (%s)",      p->yytext);     break;
 		case T_BINARY_OP:   sprintf(msg, "%c",               p->value.ival); break;
 		case T_ID:          sprintf(msg, "ID (%s)",          p->value.sval); break;
-		case T_MINUS:       sprintf(msg, "%s",               p->yytext);     break;
 		case T_ATOMIC_TYPE: sprintf(msg, "ATOMIC_TYPE (%s)", p->yytext);     break;
+		case T_LOGIC_EXPR:  sprintf(msg, "LOGIC_EXPR (%s)",  p->yytext);     break;
+		case T_COMP_EXPR:   sprintf(msg, "COMP_EXPR (%s)",   p->yytext);     break;
+		case T_MATH_EXPR:   sprintf(msg, "MATH_EXPR (%s)",   p->yytext);     break;
+		case T_NEG_EXPR:    sprintf(msg, "NEG_EXPR (%s)",    p->yytext);     break;
+		case T_SELECT_EXPR: sprintf(msg, "SELECT_EXPR (%s)", p->yytext);     break;
 		case T_NONTERMINAL:
 			switch(p->value.ival) {
 				case NPROGRAM:          sprintf(msg, "%s", "PROGRAM");           break;
@@ -188,30 +205,21 @@ char* get_node_string(Pnode p) {
 				case NEXPR:             sprintf(msg, "%s", "EXPR");              break;
 				case NDEF_STAT:         sprintf(msg, "%s", "DEF_STAT");          break;
 				case NDEF_LIST:         sprintf(msg, "%s", "DEF_LIST");          break;
-				case NATTR_LIST:        sprintf(msg, "%s", "ATTR_LIST");         break;
-				case NID_LIST:          sprintf(msg, "%s", "ID_LIST");           break;
 				case NATTR_DECL:        sprintf(msg, "%s", "ATTR_DECL");         break;
 				case NBOOL_TERM:        sprintf(msg, "%s", "BOOL_TERM");         break;
 				case NCOMP_TERM:        sprintf(msg, "%s", "COMP_TERM");         break;
 				case NLOW_TERM:         sprintf(msg, "%s", "LOW_TERM");          break;
-				case NUNARY_OP:         sprintf(msg, "%s", "UNARY_OP");          break;
-				case NPROJECT_OP:       sprintf(msg, "%s", "PROJECT_OP");        break;
-				case NSELECT_OP:        sprintf(msg, "%s", "SELECT_OP");         break;
-				case NEXISTS_OP:        sprintf(msg, "%s", "EXISTS_OP");         break;
-				case NALL_OP:           sprintf(msg, "%s", "ALL_OP");            break;
-				case NEXTEND_OP:        sprintf(msg, "%s", "EXTEND_OP");         break;
-				case NUPDATE_OP:        sprintf(msg, "%s", "UPDATE_OP");         break;
-				case NRENAME_OP:        sprintf(msg, "%s", "RENAME_OP");         break;
+				case NPROJECT_EXPR:     sprintf(msg, "%s", "PROJECT_EXPR");      break;
+				case NEXTEND_EXPR:      sprintf(msg, "%s", "EXTEND_EXPR");       break;
+				case NUPDATE_EXPR:      sprintf(msg, "%s", "UPDATE_EXPR");       break;
+				case NRENAME_EXPR:      sprintf(msg, "%s", "RENAME_EXPR");       break;
 				case NFACTOR:           sprintf(msg, "%s", "FACTOR");            break;
-				case NJOIN_OP:          sprintf(msg, "%s", "JOIN_OP");           break;
+				case NJOIN_EXPR:        sprintf(msg, "%s", "JOIN_EXPR");         break;
 				case NTYPE:             sprintf(msg, "%s", "TYPE");              break;
 				case NCONST:            sprintf(msg, "%s", "CONST");             break;
-				case NSIMPLE_CONST:     sprintf(msg, "%s", "ATOMIC_CONST");      break;
-				case NTABLE_CONST:      sprintf(msg, "%s", "TABLE CONST");       break;
-				case NTUPLE_CONST:      sprintf(msg, "%s", "TUPLE CONST");       break;
+				case NTABLE_INSTANCE:   sprintf(msg, "%s", "TABLE INSTANCE");    break;
 				case NTUPLE_LIST:       sprintf(msg, "%s", "TUPLE LIST");        break;
-				case NATOMIC_TYPE_LIST: sprintf(msg, "%s", "ATOMIC TYPE LIST");  break;
-				case NSPECIFIER:        sprintf(msg, "%s", "SPECIFIER");         break;
+				case NTUPLE_CONST:      sprintf(msg, "%s", "TUPLE CONST");       break;
 				case NASSIGN_STAT:      sprintf(msg, "%s", "ASSIGN_STAT");       break;
 				case NWHILE_STAT:       sprintf(msg, "%s", "WHILE_STAT");        break;
 				case NIF_STAT:          sprintf(msg, "%s", "IF_STAT");           break;

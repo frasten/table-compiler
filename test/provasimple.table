@@ -1,6 +1,25 @@
 program
 	integer a, b, c;
-	string d, e, f;
-	boolean g, h, i;
-	table (integer k, string j) z
+	table (integer k, string j) z;
+	a = 1;
+	a = b>c and d<e;
+	a = 1 and 2 or 3;
+	a = a>1 and (4+6)<4 or g>"b";
+	a = project [a,b,c] z;
+	a = select [a==1 and 3>b] t;
+	a = A1 join [b==c] A2;
+	a = {integer, string, boolean};
+	a = {(1, "sun"),(2, "moon")};
+	if a > 5 then
+		a = 1
+	else
+		ciao = 1
+	end;
+	while a > 5 do
+		a = 5
+	end;
+	read ["ciao"] a;
+	read a;
+	write ["ciao"] a;
+	write a
 end

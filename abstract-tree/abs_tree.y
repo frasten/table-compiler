@@ -89,54 +89,82 @@ extern int linenumber;
                 }
               ;
 
-    assign_stat : ID '=' expr
+    assign_stat : ID {$$ = idnode();} '=' expr {
+                      $$ = nontermnode(NASSIGN_STAT);
+                      $$->child = $2;
+                      $$->child->brother = $4;
+                  }
                 ;
 
-    expr : expr bool_op bool_term
-         | bool_term
+    expr : expr bool_op bool_term {
+               $$ = $2;
+               $$->child = $1;
+               $1->brother = $3;
+           }
+         | bool_term {
+               $$ = $1;
+           }
          ;
 
-    bool_op : AND
-            | OR
+    bool_op : AND {$$ = pseudotermnode(T_LOGIC_EXPR, AND);}
+            | OR  {$$ = pseudotermnode(T_LOGIC_EXPR, OR);}
             ;
 
-    bool_term : comp_term comp_op comp_term
+    bool_term : comp_term comp_op comp_term {
+                    $$ = $2;
+                    $$->child = $1;
+                    $1->brother = $3;
+                }
               | comp_term
               ;
 
-    comp_op : COMPARISON
-            | DIFFER
-            | '>'
-            | GTE
-            | '<'
-            | LTE
+    comp_op : COMPARISON {$$ = pseudotermnode(T_COMP_EXPR, COMPARISON);}
+            | DIFFER     {$$ = pseudotermnode(T_COMP_EXPR, DIFFER);}
+            | '>'        {$$ = pseudotermnode(T_COMP_EXPR, '>');}
+            | GTE        {$$ = pseudotermnode(T_COMP_EXPR, GTE);}
+            | '<'        {$$ = pseudotermnode(T_COMP_EXPR, '<');}
+            | LTE        {$$ = pseudotermnode(T_COMP_EXPR, LTE);}
             ;
 
-    comp_term : comp_term low_bin_op low_term
+    comp_term : comp_term low_bin_op low_term {
+                    $$ = $2;
+                    $$->child = $1;
+                    $1->brother = $3;
+                }
               | low_term
               ;
 
-    low_bin_op : '+'
-               | '-'
+    low_bin_op : '+' {$$ = pseudotermnode(T_MATH_EXPR, '+');}
+               | '-' {$$ = pseudotermnode(T_MATH_EXPR, '-');}
                ;
 
-    low_term : low_term high_bin_op factor
+    low_term : low_term high_bin_op factor {
+                   $$ = $2;
+                   $$->child = $1;
+                   $1->brother = $3;
+               }
              | factor
              ;
 
-    high_bin_op : '*'
-                | '/'
-                | join_op
+    high_bin_op : '*' {$$ = pseudotermnode(T_MATH_EXPR, '*');}
+                | '/' {$$ = pseudotermnode(T_MATH_EXPR, '/');}
+                | join_op {
+                    $$ = nontermnode(NJOIN_EXPR);
+                    $$->brother = $1;
+                }
                 ;
 
-    factor : unary_op factor
-           | '(' expr ')'
-           | ID
+    factor : unary_op factor {
+                 $$ = $1;
+                 $1->child = $2;
+             }
+           | '(' expr ')' {$$ = $2;}
+           | ID {$$ = idnode();}
            | constant
            ;
 
-    unary_op : '-'
-             | NOT
+    unary_op : '-' {$$ = pseudotermnode(T_NEG_EXPR, '-');}
+             | NOT {$$ = pseudotermnode(T_NEG_EXPR, NOT);}
              | project_op
              | select_op
              | exists_op
@@ -146,79 +174,142 @@ extern int linenumber;
              | rename_op
              ;
 
-    join_op : JOIN '[' expr ']'
+    join_op : JOIN '[' expr ']' {
+                  $$ = $3;
+              }
             ;
 
-    project_op : PROJECT '[' id_list ']'
+    project_op : PROJECT '[' id_list ']' {
+                     $$ = nontermnode(NPROJECT_EXPR);
+                     $$->brother = $3;
+                 }
                ;
 
-    select_op : SELECT '[' expr ']'
+    select_op : SELECT '[' expr ']' {
+                    $$ = pseudotermnode(T_SELECT_EXPR, SELECT);
+                    $$->brother = $3;
+                }
               ;
 
-    exists_op : EXISTS '[' expr ']'
+    exists_op : EXISTS '[' expr ']' {
+                    $$ = pseudotermnode(T_SELECT_EXPR, EXISTS);
+                    $$->brother = $3;
+                }
               ;
 
-    all_op : ALL '[' expr ']'
+    all_op : ALL '[' expr ']' {
+                    $$ = pseudotermnode(T_SELECT_EXPR, ALL);
+                    $$->brother = $3;
+                }
            ;
 
-    extend_op : EXTEND '[' atomic_type ID '=' expr ']'
+    extend_op : EXTEND '[' atomic_type ID {$$ = idnode();} '=' expr ']' {
+                    $$ = nontermnode(NEXTEND_EXPR);
+                    $$->brother = $3;
+                    $3->brother = $5;
+                    $5->brother = $7;
+                }
               ;
 
-    update_op : UPDATE '[' ID '=' expr ']'
+    update_op : UPDATE '[' ID {$$ = idnode();} '=' expr ']' {
+                    $$ = nontermnode(NUPDATE_EXPR);
+                    $$->brother = $4;
+                    $4->brother = $6;
+                }
               ;
 
-    rename_op : RENAME '[' id_list ']'
+    rename_op : RENAME '[' id_list ']' {
+                    $$ = nontermnode(NRENAME_EXPR);
+                    $$->brother = $3;
+                }
               ;
 
     constant : atomic_const
              | table_const
              ;
 
-    atomic_const : INTCONST
-                 | STRCONST
-                 | BOOLCONST
+    atomic_const : INTCONST {$$ = intconstnode();}
+                 | STRCONST {$$ = strconstnode();}
+                 | BOOLCONST {$$ = boolconstnode();}
                  ;
 
-    table_const : '{' table_instance '}'
+    table_const : '{' table_instance '}' {
+                      $$ = nontermnode(NTABLE_INSTANCE);
+                      $$->child = $2;
+                  }
                 ;
 
     table_instance : tuple_list
                    | atomic_type_list
                    ;
 
-    tuple_list : tuple_const ',' tuple_list
+    tuple_list : tuple_const ',' tuple_list {
+                     $$ = $1;
+                     $$->brother = $3;
+                 }
                | tuple_const
                ;
 
-    tuple_const : '(' atomic_const_list ')'
+    tuple_const : '(' atomic_const_list ')' {
+                      $$ = nontermnode(NTUPLE_CONST);
+                      $$->child = $2;
+                  }
                 ;
 
-    atomic_const_list : atomic_const ',' atomic_const_list
+    atomic_const_list : atomic_const ',' atomic_const_list {
+                            $$ = $1;
+                            $$->brother = $3;
+                        }
                       | atomic_const
                       ;
 
-    atomic_type_list : atomic_type ',' atomic_type_list
+    atomic_type_list : atomic_type ',' atomic_type_list {
+                           $$ = $1;
+                           $$->brother = $3;
+                       }
                      | atomic_type
                      ;
 
-    if_stat : IF expr THEN stat_list else_part END
+    if_stat : IF expr THEN stat_list else_part END {
+                  $$ = nontermnode(NIF_STAT);
+                  $$->child = $2;
+                  $2->brother = nontermnode(NSTAT_LIST);
+                  $2->brother->child = $4;
+                  $2->brother->brother = $5;
+              }
             ;
 
-    else_part : ELSE stat_list
-              |
+    else_part : ELSE stat_list {
+                    $$ = nontermnode(NSTAT_LIST);
+                    $$->child = $2;
+                }
+              | {$$ = NULL;}
               ;
 
-    while_stat : WHILE expr DO stat_list END
+    while_stat : WHILE expr DO stat_list END {
+                     $$ = nontermnode(NWHILE_STAT);
+                     $$->child = $2;
+                     $2->brother = nontermnode(NSTAT_LIST);
+                     $2->brother->child = $4;
+                 }
                ;
 
-    read_stat : READ specifier ID
+    read_stat : READ specifier ID {
+                    $$ = nontermnode(NREAD_STAT);
+                    $$->child = idnode();
+                    $$->child->brother = $2;
+                }
               ;
 
-    specifier : '[' expr ']'
-              |
+    specifier : '[' expr ']' {$$ = $2;}
+              | {$$ = NULL;}
               ;
 
-    write_stat : WRITE specifier expr
+    write_stat : WRITE specifier expr {
+                     $$ = nontermnode(NWRITE_STAT);
+                     $$->child = $3;
+                     $3->brother = $2;
+                 }
                ;
 
 %%
