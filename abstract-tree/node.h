@@ -4,9 +4,9 @@
 #include "symbols.h"
 
 typedef enum {
-	T_INTEGER,
-	T_STRING,
-	T_BOOLEAN,
+	//T_INTEGER,
+	//T_STRING,
+	//T_BOOLEAN,
 	T_AND,
 	T_OR,
 	T_BINARY_OP,
@@ -17,7 +17,8 @@ typedef enum {
 	T_ID,
 	T_NONTERMINAL,
 	T_MINUS,
-	T_NOT
+	T_NOT,
+	T_ATOMIC_TYPE
 } Typenode;
 
 typedef enum {
@@ -47,7 +48,7 @@ typedef enum {
 	NTABLE_CONST,
 	NSPECIFIER,
 	NSIMPLE_CONST,
-	NATOMIC_TYPE,
+	//NATOMIC_TYPE,
 	NTABLE_TYPE,
 	NPROJECT_OP,
 	NSELECT_OP,
@@ -90,6 +91,7 @@ Pnode intconstnode();
 Pnode strconstnode();
 Pnode boolconstnode();
 Pnode nontermnode(Nonterminal nonterm);
+Pnode pseudotermnode(Typenode type, int value);
 
 #else
 #endif

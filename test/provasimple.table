@@ -1,3 +1,6 @@
 program
-integer a, b, c
+	integer a, b, c;
+	string d, e, f;
+	boolean g, h, i;
+	table (integer k, string j) z
 end

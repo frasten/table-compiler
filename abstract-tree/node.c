@@ -66,6 +66,14 @@ Pnode boolconstnode() {
 }
 
 
+Pnode pseudotermnode(Typenode type, int value) {
+	Pnode p;
+	p = newnode(type);
+	p->value.ival = value;
+	return p;
+}
+
+
 void print_tree(Pnode p, int level) {
 	char connector;
 	int i;
@@ -162,19 +170,17 @@ char* get_node_string(Pnode p) {
 
 	// ID (a)
 	switch (p->type) {
-		case T_INTEGER:   sprintf(msg, "%s", "INTEGER"); break;
-		case T_STRING:    sprintf(msg, "%s", "STRING");  break;
-		case T_BOOLEAN:   sprintf(msg, "%s", "BOOLEAN"); break;
-		case T_AND:       sprintf(msg, "%s", "AND");     break;
-		case T_OR:        sprintf(msg, "%s", "OR");      break;
-		case T_NOT:       sprintf(msg, "%s", "NOT");     break;
-		case T_INTCONST:  sprintf(msg, "INT (%d)",    p->value.ival); break;
-		case T_STRCONST:  sprintf(msg, "STR (%s)",    p->value.sval); break;
-		case T_BOOLCONST: sprintf(msg, "BOOL (%s)",   p->yytext);     break;
-		case T_BOOLOP:    sprintf(msg, "BOOLOP (%s)", p->yytext);     break;
-		case T_BINARY_OP: sprintf(msg, "%c",          p->value.ival); break;
-		case T_ID:        sprintf(msg, "ID (%s)",     p->value.sval); break;
-		case T_MINUS:     sprintf(msg, "%s",          p->yytext);     break;
+		case T_AND:         sprintf(msg, "%s", "AND");       break;
+		case T_OR:          sprintf(msg, "%s", "OR");        break;
+		case T_NOT:         sprintf(msg, "%s", "NOT");       break;
+		case T_INTCONST:    sprintf(msg, "INT (%d)",         p->value.ival); break;
+		case T_STRCONST:    sprintf(msg, "STR (%s)",         p->value.sval); break;
+		case T_BOOLCONST:   sprintf(msg, "BOOL (%s)",        p->yytext);     break;
+		case T_BOOLOP:      sprintf(msg, "BOOLOP (%s)",      p->yytext);     break;
+		case T_BINARY_OP:   sprintf(msg, "%c",               p->value.ival); break;
+		case T_ID:          sprintf(msg, "ID (%s)",          p->value.sval); break;
+		case T_MINUS:       sprintf(msg, "%s",               p->yytext);     break;
+		case T_ATOMIC_TYPE: sprintf(msg, "ATOMIC_TYPE (%s)", p->yytext);     break;
 		case T_NONTERMINAL:
 			switch(p->value.ival) {
 				case NPROGRAM:          sprintf(msg, "%s", "PROGRAM");           break;
@@ -211,7 +217,6 @@ char* get_node_string(Pnode p) {
 				case NIF_STAT:          sprintf(msg, "%s", "IF_STAT");           break;
 				case NREAD_STAT:        sprintf(msg, "%s", "READ_STAT");         break;
 				case NWRITE_STAT:       sprintf(msg, "%s", "WRITE_STAT");        break;
-				case NATOMIC_TYPE:      sprintf(msg, "%s", "ATOMIC_TYPE");       break;
 				case NTABLE_TYPE:       sprintf(msg, "%s", "TABLE_TYPE");        break;
 				case NSTAT_LIST:        sprintf(msg, "%s", "STAT_LIST");         break;
 				default: sprintf(msg, "%s", "xxxNONTERMINALxxx"); break;

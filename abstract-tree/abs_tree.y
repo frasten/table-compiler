@@ -59,27 +59,34 @@ extern int linenumber;
          ;
 
     atomic_type : INT {
-                      $$ = nontermnode(NATOMIC_TYPE);
-                      $$->child = keynode(T_INTEGER);
+                      $$ = pseudotermnode(T_ATOMIC_TYPE, INT);
                   }
                 | STRING {
-                      $$ = nontermnode(NATOMIC_TYPE);
-                      $$->child = keynode(T_STRING);
+                      $$ = pseudotermnode(T_ATOMIC_TYPE, STRING);
                   }
                 | BOOL {
-                      $$ = nontermnode(NATOMIC_TYPE);
-                      $$->child = keynode(T_BOOLEAN);
+                      $$ = pseudotermnode(T_ATOMIC_TYPE, BOOL);
                   }
                 ;
 
-    table_type : TABLE '(' attr_list ')'
+    table_type : TABLE '(' attr_list ')' {
+                     $$ = nontermnode(NTABLE_TYPE);
+                     $$->child = $3;
+                 }
                ;
 
-    attr_list : attr_decl ',' attr_list
+    attr_list : attr_decl ',' attr_list {
+                    $$ = $1;
+                    $$->brother = $3;
+                }
               | attr_decl
               ;
 
-    attr_decl : atomic_type ID
+    attr_decl : atomic_type ID {
+                    $$ = nontermnode(NATTR_DECL);
+                    $$->child = $1;
+                    $$->child->brother = idnode();
+                }
               ;
 
     assign_stat : ID '=' expr
@@ -216,13 +223,18 @@ extern int linenumber;
 
 %%
 void yyerror(char* message) {
-    printf("Riga: %d near %s\n", linenumber, yytext);
-    fprintf(stderr, "%s\n", message);
+    fprintf(stderr, "%s Riga: %d near %s\n", message, linenumber, yytext);
 }
 
 int main() {
+    int result;
+
     linenumber = 1;
-    yyparse();
+    result = yyparse();
+    if (result != 0) {
+      // Parse error
+      return result;
+    }
     print_tree(root, 0);
     print_tree_graphviz(root);
     return 0;
