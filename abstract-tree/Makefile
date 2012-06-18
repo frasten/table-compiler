@@ -1,7 +1,7 @@
 WFLAGS=-Wall -Wextra
 CFLAGS=-g $(WFLAGS)
 
-GCC=$(shell which gcc)
+GCC=$(shell which clang)
 
 SOURCES=$(shell ls *.c)
 OBJECTS=$(SOURCES:.c=.o)
@@ -29,10 +29,12 @@ $(EXECUTABLE): abs_tree.o lexer.o $(OBJECTS)
 	$(Q)$(GCC) $(CFLAGS) -c -o $@ $<
 
 abs_tree.c: abs_tree.y lexer.c
-	bison -vd -o abs_tree.c abs_tree.y
+	$(P)BS
+	$(Q)bison -vd -o $@ abs_tree.y
 
 lexer.c: lexer.lex
-	lex -o lexer.c --header-file=lexer.h lexer.lex
+	$(P)LX
+	$(Q)lex -o $@ --header-file=lexer.h lexer.lex
 
 clean:
 	rm -f *.o $(EXECUTABLE) *.output abs_tree.c lexer.c lexer.h abs_tree.h *.dot *.png
