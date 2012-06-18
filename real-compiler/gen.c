@@ -4,7 +4,7 @@
 static Opdescr tabop[] =
 {
         {T_TCODE,   "TCODE",    0,  "i"},
-        {T_NEWATOM,     "NEWATOM",  0,  "i"},
+        {T_NEWATOM, "NEWATOM",  0,  "i"},
         {T_NEWTAB,  "NEWTAB",   0,  "i"},
         {T_POP,     "POP",      0,  "i"},
         {T_LDINT,   "LDINT",    0,  "i"},
@@ -118,7 +118,7 @@ Code endcode()
 Code concode(Code code1, Code code2, ...)
 {
     Code rescode = code1, *pcode = &code2;
-        
+
     while(pcode->head != NULL)
     {
         rescode = appcode(rescode, *pcode);

@@ -1,0 +1,5 @@
+program
+	integer a, b;
+	string c, zs;
+	boolean z
+end

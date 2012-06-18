@@ -1,0 +1,2 @@
+set args < ../test/prova3
+run
