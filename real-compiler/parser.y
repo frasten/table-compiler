@@ -1,5 +1,6 @@
 %{
 #include "def.h"
+#include "lexer.h"
 #define YYSTYPE Pnode
 #define YYDEBUG 1
 
@@ -9,6 +10,8 @@ extern Value lexval;
 
 int yydebug = 0;
 Pnode root = NULL;
+
+int yyerror();
 %}
 
 %token ALL AND BOOLCONST BOOLEAN DO ELSE END EQ ERROR EXISTS EXTEND GE ID IF 
