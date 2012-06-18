@@ -68,9 +68,9 @@ write          {return(WRITE);}
 
 char *clear_string(char *s)
 {
-    int lung = strlen(yytext);
+    int lung = strlen(s);
 
-    yytext[lung-1] = '\0';
-    return(yytext+1);
+    s[lung-1] = '\0';
+    return(s+1);
 }
 

@@ -16,3 +16,4 @@ real-compiler/lexer.c
 real-compiler/lexer.h
 real-compiler/parser.c
 real-compiler/parser.h
+real-compiler/table

@@ -8,7 +8,7 @@ int oid_counter = 0;
 
 int numobj_in_current_env()
 {
-  return (envstack->numobj);
+    return (envstack->numobj);
 }
 
 void push_environment()
@@ -25,28 +25,28 @@ void push_environment()
 
 void insert_name_into_environment(char *name)
 {
-  Pname tempname = envstack->pname;
-  
-  envstack->pname = (Pname)newmem(sizeof(Name));
-  envstack->pname->name = name;
-  envstack->numobj++;
-  envstack->pname->next = tempname;
+    Pname tempname = envstack->pname;
+    
+    envstack->pname = (Pname)newmem(sizeof(Name));
+    envstack->pname->name = name;
+    envstack->numobj++;
+    envstack->pname->next = tempname;
 }
 
 Boolean name_in_environment(char *name)
 {
-  return(name_in_list(name, envstack->pname));
+    return(name_in_list(name, envstack->pname));
 }
 
 Boolean name_in_list(char *name, Pname pname)
 {
-  while(pname)
-  {
-    if(name == pname->name)
-      return(TRUE);
-    pname = pname->next;
-  }
-  return(FALSE);
+    while(pname)
+    {
+        if(name == pname->name)
+            return(TRUE);
+        pname = pname->next;
+    }
+    return(FALSE);
 }
 
 void pop_environment()
@@ -58,10 +58,10 @@ void pop_environment()
     next= penv->pname;
     while(next)
     {
-      pname = next;
-      eliminate(pname->name);
-      next = pname->next;
-      freemem(pname, sizeof(Name));
+        pname = next;
+        eliminate(pname->name);
+        next = pname->next;
+        freemem(pname, sizeof(Name));
     }
     oid_counter -= penv->numobj;
     envstack = penv->next;
@@ -91,27 +91,25 @@ void pop_context()
 
 Pschema name_in_constack(char *name, int *pcontext_offset, int *pattribute_context)
 {
-  Pcontext pcontext = constack;
-  Pschema pschema;
-    
-  for(*pcontext_offset = 0; pcontext != NULL; ++(*pcontext_offset), pcontext = pcontext->next)
-    if((pschema = name_in_schema(name, pcontext->pschema)) != NULL)
-    {
-      *pattribute_context = get_attribute_offset(pcontext->pschema, name);
-      return(pschema);
-    }
-    return(NULL);
+    Pcontext pcontext = constack;
+    Pschema pschema;
+        
+    for(*pcontext_offset = 0; pcontext != NULL; ++(*pcontext_offset), pcontext = pcontext->next)
+        if((pschema = name_in_schema(name, pcontext->pschema)) != NULL)
+        {
+            *pattribute_context = get_attribute_offset(pcontext->pschema, name);
+            return(pschema);
+        }
+        return(NULL);
 }
 
 Pschema name_in_schema(char *name, Pschema pschema)
 {
-  while(pschema != NULL)
-  {
-    if(pschema->name == name)
-      return(pschema);
-    pschema = pschema->next;
-  };
-  return(NULL);
+    while(pschema != NULL)
+    {
+        if(pschema->name == name)
+            return(pschema);
+        pschema = pschema->next;
+    }
+    return(NULL);
 }
-
-

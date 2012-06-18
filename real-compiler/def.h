@@ -198,8 +198,8 @@ char *clear_string(char *s),
      *get_format(Schema),
      *nameop(Operator),
      *operator(int),
-     *strcat( char*, const char*),
-     *strcpy (char*, const char*),
+     //*strcat( char*, const char*), TODO
+     //*strcpy (char*, const char*), TODO
      *update_lextab(char*),
      *valname(Pnode);
      
@@ -281,6 +281,6 @@ void codeprint(Code, int),
      syserror(char*),
      treeprint(Pnode, int);
 
-
-
-
+int qualifier(Pnode),
+    get_size(Pschema),
+    get_attribute_offset(Pschema, char*);

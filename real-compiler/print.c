@@ -42,25 +42,25 @@ char* tabtypes[] =
 
 struct {int symbol; char* operator;} tabop[TOTOP] =
 {
-  INTEGER, "integer",
-  STRING, "string",
-  BOOLEAN, "boolean",
-  SELECT, "select",
-  EXISTS, "exists",
-  ALL, "all",
-  NOT, "not",
-  '+', "+",
-  '-', "-",
-  '*', "*",
-  '/', "/",
-  EQ, "==",
-  NE, "!=",
-  '>', ">",
-  GE, ">=",
-  '<', "<",
-  LE, "<=",
-  AND, "and",
-  OR, "or"
+  {INTEGER, "integer"},
+  {STRING, "string"},
+  {BOOLEAN, "boolean"},
+  {SELECT, "select"},
+  {EXISTS, "exists"},
+  {ALL, "all"},
+  {NOT, "not"},
+  {'+', "+"},
+  {'-', "-"},
+  {'*', "*"},
+  {'/', "/"},
+  {EQ, "=="},
+  {NE, "!="},
+  {'>', ">"},
+  {GE, ">="},
+  {'<', "<"},
+  {LE, "<="},
+  {AND, "and"},
+  {OR, "or"}
 };
 
 char *operator(int symbol)
@@ -76,9 +76,7 @@ char *operator(int symbol)
 void treeprint(Pnode root, int indent)
 {
   int i;
-  Pnode p;
-  char *op;
-  
+  Pnode p;  
   
   for(i=0; i<indent; i++)
     printf("   ");

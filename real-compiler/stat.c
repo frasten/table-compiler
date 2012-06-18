@@ -27,3 +27,8 @@ Code program(Pnode root)
 		 endcode());
 }
 
+Code stat_list(Pnode p) {
+	// TODO
+	return endcode();
+}
+// TODO

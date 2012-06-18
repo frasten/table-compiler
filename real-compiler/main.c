@@ -2,6 +2,7 @@
 
 extern int yydebug;
 extern Pnode root;
+extern int yyparse();
 
 int main(int argc, char *argv[])
 {
@@ -12,6 +13,7 @@ int main(int argc, char *argv[])
     yyparse();
     code = program(root);
     codeprint(code, 0);
+    return 0;
 }
 
 void init_compiler()
