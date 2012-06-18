@@ -12,3 +12,7 @@ abstract-tree/lexer.c
 abstract-tree/lexer.h
 *.png
 *.dot
+real-compiler/lexer.c
+real-compiler/lexer.h
+real-compiler/parser.c
+real-compiler/parser.h
