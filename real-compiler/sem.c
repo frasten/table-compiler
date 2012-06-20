@@ -94,13 +94,15 @@ Pschema name_in_constack(char *name, int *pcontext_offset, int *pattribute_conte
     Pcontext pcontext = constack;
     Pschema pschema;
         
-    for(*pcontext_offset = 0; pcontext != NULL; ++(*pcontext_offset), pcontext = pcontext->next)
+    for (*pcontext_offset = 0; pcontext != NULL; ++(*pcontext_offset), pcontext = pcontext->next)
+    {
         if((pschema = name_in_schema(name, pcontext->pschema)) != NULL)
         {
             *pattribute_context = get_attribute_offset(pcontext->pschema, name);
             return(pschema);
         }
-        return(NULL);
+    }
+    return(NULL);
 }
 
 Pschema name_in_schema(char *name, Pschema pschema)
