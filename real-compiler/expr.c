@@ -50,7 +50,8 @@ Pschema append_schemas(Pschema psch1, Pschema psch2)
 }
 
 
-Code expr(Pnode root, Pschema pschema) {
+Code expr(Pnode root, Pschema pschema)
+{
     Code code1, code2;
     Schema schema1, schema2;
     int op, offset, context;
@@ -62,19 +63,22 @@ Code expr(Pnode root, Pschema pschema) {
     pschema->next = NULL;
     switch(root->type) {
         case N_ID : // TODO
-            if ((symbol = lookup(valname(root))) != NULL) {
+            if ((symbol = lookup(valname(root))) != NULL)
+            {
                 /* Variabile */
                 // Assegno il tipo
                 *pschema = symbol->schema;
 
                 return makecode1(T_LOB, symbol->oid);
             }
-            else if (name_in_constack(valname(root), &offset, &context) != NULL) {
+            else if (name_in_constack(valname(root), &offset, &context) != NULL)
+            {
                 /* Attributo nel contesto corrente */
                 printf("Contesto corrente.\n");
                 // TODO
             }
-            else {
+            else
+            {
                 /* Attributo in un contesto esterno */
                 printf("Contesto esterno.\n");
                 // TODO
@@ -85,14 +89,18 @@ Code expr(Pnode root, Pschema pschema) {
                     '+'
                     /
                    /
-                  ID(a) --> INTCONST(5)
+                (...) --> (...)
              */
             code1 = expr(root->child, &schema1);
             code2 = expr(root->child->brother, &schema2);
+
+            // Vincoli semantici
             if (schema1.type != INTEGER || schema2.type != INTEGER)
                 semerror(root, "Math operation requires integer types");
             pschema->type = INTEGER;
-            switch(qualifier(root)) {
+
+            switch(qualifier(root))
+            {
                 case '+' : op = T_PLUS; break;
                 case '-' : op = T_MINUS; break;
                 case '*' : op = T_TIMES; break;
@@ -112,7 +120,8 @@ Code expr(Pnode root, Pschema pschema) {
                 semerror(root, "Logic operation requires boolean types");
             pschema->type = BOOLEAN;
 
-            switch (qualifier(root)) {
+            switch (qualifier(root))
+            {
                 case AND:
                     return concode(
                         code1,
@@ -138,7 +147,8 @@ Code expr(Pnode root, Pschema pschema) {
             code2 = expr(root->child->brother, &schema2);
             pschema->type = BOOLEAN;
 
-            switch (qualifier(root)) {
+            switch (qualifier(root))
+            {
                 case EQ:
                 case NE:
                     if (type_equal(schema1, schema2))
@@ -154,18 +164,23 @@ Code expr(Pnode root, Pschema pschema) {
                 case '<':
                 case LE:
                     if ((schema1.type == INTEGER && schema2.type == INTEGER) ||
-                        (schema1.type == STRING && schema2.type == STRING)) {
+                        (schema1.type == STRING && schema2.type == STRING))
+                    {
 
-                        if (schema1.type == INTEGER) {
-                            switch (qualifier(root)) {
+                        if (schema1.type == INTEGER)
+                        {
+                            switch (qualifier(root))
+                            {
                                 case '>': op = T_IGT; break;
                                 case GE : op = T_IGE; break;
                                 case '<': op = T_ILT; break;
                                 case LE : op = T_ILE; break;
                             }
                         }
-                        else {
-                            switch (qualifier(root)) {
+                        else
+                        {
+                            switch (qualifier(root))
+                            {
                                 case '>': op = T_SGT; break;
                                 case GE : op = T_SGE; break;
                                 case '<': op = T_SLT; break;
@@ -182,6 +197,7 @@ Code expr(Pnode root, Pschema pschema) {
                             );
                     }
                     else semerror(root, "Comparison requires same types");
+                default: noderror(root);
             }
 
         case N_INTCONST:
