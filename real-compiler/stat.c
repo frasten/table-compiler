@@ -22,14 +22,15 @@ Code program(Pnode root)
   Code body = stat_list(root->child);
   
   return concode(makecode1(T_TCODE, body.size + 2),
-		 body,
-		 makecode(T_HALT),
-		 endcode());
+         body,
+         makecode(T_HALT),
+         endcode());
 }
 
 Code stat_list(Pnode p)
 {
-	push_environment();
+    int env_num_vars = 0;
+    push_environment();
 /*
     stat_list
       /
@@ -43,10 +44,11 @@ Code stat_list(Pnode p)
 		s = appcode(s, stat(p));
 	}
 
-	// Tolgo le variabili dichiarate in questo environment:
-	s = appcode(s, makecode1(T_POP, numobj_in_current_env()));
-	pop_environment();
-	return s;
+    // Tolgo le variabili dichiarate in questo environment:
+    if ((env_num_vars = numobj_in_current_env()) > 0)
+        s = appcode(s, makecode1(T_POP, env_num_vars));
+    pop_environment();
+    return s;
 }
 
 Code def_stat(Pnode p)
