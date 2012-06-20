@@ -29,6 +29,7 @@ Code program(Pnode root)
 
 Code stat_list(Pnode p)
 {
+	push_environment();
 /*
     stat_list
       /
@@ -41,6 +42,10 @@ Code stat_list(Pnode p)
 	{
 		s = appcode(s, stat(p));
 	}
+
+	// Tolgo le variabili dichiarate in questo environment:
+	s = appcode(s, makecode1(T_POP, numobj_in_current_env()));
+	pop_environment();
 	return s;
 }
 
@@ -53,9 +58,11 @@ Code def_stat(Pnode p)
    type ---> ID ---> ID
 */
 	Code c_temp, c_ret;
-	switch (p->child->type)
+    Psymbol symbol;
+    Pnode nodo_type = p->child;
+
+	switch (nodo_type->type)
 	{
-		// TODO: boolean c; lo fa crashare
 		case N_ATOMIC_TYPE: {
 			int size = 0;
 		    switch (p->child->value.ival)
@@ -67,25 +74,67 @@ Code def_stat(Pnode p)
 		            size = sizeof(char *);
 			}
 
+
 			c_ret.head = NULL;
 			// Genero il codice per allocare ognuna delle variabili
 			for (p = p->child->brother; p != NULL; p = p->brother) {
+				Pschema schema;
 				c_temp = makecode1(T_NEWATOM, size);
 				c_ret = (c_ret.head == NULL ? c_temp : appcode(c_ret, c_temp));
+
+				// Gestione della Symbol Table
+				if (name_in_environment(p->value.sval))
+			    	semerror(p, "Variable redeclaration");
+			    // Aggiungo la nuova variabile nell'environment...
+			    insert_name_into_environment(p->value.sval);
+			    // ... e nella symbol table
+			    schema = atomic_type(nodo_type);
+			    schema->name = p->value.sval;
+			    insert(*schema);
 			}
 			return c_ret;
 		}
 		case N_TABLE_TYPE:
 			// TODO
 			break;
+		default:
+			noderror(p->child);
 	}
 	return endcode();
 }
 
+Pname id_list(Pnode p, int* boh) {
+	// TODO
+}
+
+
 Code assign_stat(Pnode p)
 {
-	// TODO
-	return endcode();
+	Psymbol symbol;
+	Code exprcode;
+	Pschema exprschema;
+/*
+    assign_stat
+        /
+       /
+      ID ---> expr
+ */
+    if (!name_in_environment(p->child->value.sval))
+    	semerror(p->child, "Undefined identifier in assignment");
+
+    // Carico gli schemi di ID e expr
+    symbol = lookup(p->child->value.sval);
+	exprschema = clone_schema(&symbol->schema);
+    exprcode = expr(p->child->brother, exprschema);
+
+    // Type checking:
+    if (!type_equal(symbol->schema, *exprschema))
+    	semerror(p->child->brother, "Incompatible types in assignment");
+
+	return concode(
+		exprcode,
+		makecode1(T_STO, symbol->oid),
+		endcode());
 }
 
 Code attr_code(Pnode p)
@@ -118,10 +167,8 @@ Code stat(Pnode p)
 	switch (p->type)
 	{
 		case N_DEF_STAT:
-			printf("DEF_STAT\n");
 			return def_stat(p);
 		case N_ASSIGN_STAT:
-			printf("ASSIGN_STAT\n");
 			return assign_stat(p);
 		case N_IF_STAT:
 			printf("IF_STAT\n");
@@ -136,7 +183,7 @@ Code stat(Pnode p)
 			printf("WRITE_STAT\n");
 			return write_stat(p);
 		default:
-			semerror(p, "Unexpected error.");
+			noderror(p);
 	}
 	return endcode();
 }

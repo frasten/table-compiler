@@ -1,5 +1,6 @@
 program
 	integer a, b;
-	string c, zs;
-	boolean z
+	string c;
+	a = 1;
+	b = a
 end

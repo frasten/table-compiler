@@ -53,14 +53,39 @@ Pschema append_schemas(Pschema psch1, Pschema psch2)
 Code expr(Pnode root, Pschema pschema) {
     Code code1, code2;
     Schema schema1, schema2;
-    int op;
+    int op, offset, context;
+    Psymbol symbol;
+
     // TODO
+    // 
+    // 
     pschema->name = NULL;
     pschema->next = NULL;
     switch(root->type) {
         case N_ID : // TODO
+            if ((symbol = lookup(root->value.sval)) != NULL) {
+                // Variabile
+                // Assegno il tipo
+                *pschema = symbol->schema;
 
+                return makecode1(T_LOB, symbol->oid);
+            }
+            else if (name_in_constack(root->value.sval, &offset, &context) != NULL) {
+                // Attributo nel contesto corrente
+                printf("Contesto corrente.\n");
+            }
+            else {
+                // Attributo in un contesto esterno
+                printf("Contesto esterno.\n");
+            }
+            break;
         case N_MATH_EXPR:
+            /*
+                    '+'
+                    /
+                   /
+                  ID(a) --> INTCONST(5)
+             */
             code1 = expr(root->child, &schema1);
             code2 = expr(root->child->brother, &schema2);
             if (schema1.type != INTEGER || schema2.type != INTEGER)
@@ -78,6 +103,43 @@ Code expr(Pnode root, Pschema pschema) {
                            makecode(op),
                            endcode());
         // TODO
+        case N_INTCONST:
+            pschema->type = INTEGER;
+            return make_ldint(root->value.ival);
+        case N_STRCONST:
+            pschema->type = STRING;
+            return make_ldstr(root->value.sval);
+        case N_BOOLCONST:
+            pschema->type = BOOLEAN;
+            return make_ldint(root->value.ival);
     }
     return endcode();
+}
+
+Schema type(Pnode p)
+{
+    // TODO
+}
+
+Pschema atomic_type(Pnode p)
+{
+    if (p->type != N_ATOMIC_TYPE)
+        noderror(p);
+    Pschema schema = schemanode(NULL, p->value.ival);
+    return schema;
+}
+
+/* Crea uno Schema vuoto */
+Pschema schemanode(char* name, int type)
+{
+    Pschema schema = (Pschema) newmem(sizeof(Schema));
+    schema->next = NULL;
+    schema->name = name;
+    schema->type = type;
+    return schema;
+}
+
+Pschema table_type(Pnode p)
+{
+    // TODO
 }
