@@ -163,40 +163,35 @@ Code expr(Pnode root, Pschema pschema)
                 case GE:
                 case '<':
                 case LE:
-                    if ((schema1.type == INTEGER && schema2.type == INTEGER) ||
-                        (schema1.type == STRING && schema2.type == STRING))
+                    if (schema1.type == INTEGER && schema2.type == INTEGER)
                     {
-
-                        if (schema1.type == INTEGER)
+                        switch (qualifier(root))
                         {
-                            switch (qualifier(root))
-                            {
-                                case '>': op = T_IGT; break;
-                                case GE : op = T_IGE; break;
-                                case '<': op = T_ILT; break;
-                                case LE : op = T_ILE; break;
-                            }
+                            case '>': op = T_IGT; break;
+                            case GE : op = T_IGE; break;
+                            case '<': op = T_ILT; break;
+                            case LE : op = T_ILE; break;
                         }
-                        else
+                    }
+                    else if (schema1.type == STRING && schema2.type == STRING)
+                    {
+                        switch (qualifier(root))
                         {
-                            switch (qualifier(root))
-                            {
-                                case '>': op = T_SGT; break;
-                                case GE : op = T_SGE; break;
-                                case '<': op = T_SLT; break;
-                                case LE : op = T_SLE; break;
-                            }
+                            case '>': op = T_SGT; break;
+                            case GE : op = T_SGE; break;
+                            case '<': op = T_SLT; break;
+                            case LE : op = T_SLE; break;
                         }
-
-                        // Vincoli OK
-                        return concode(
-                            code1,
-                            code2,
-                            makecode(op),
-                            endcode()
-                            );
                     }
                     else semerror(root, "Comparison requires same types");
+
+                    // Vincoli OK
+                    return concode(
+                        code1,
+                        code2,
+                        makecode(op),
+                        endcode()
+                        );
                 default: noderror(root);
             }
 
