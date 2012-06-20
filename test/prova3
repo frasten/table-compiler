@@ -1,4 +1,9 @@
 program
-	integer a;
-a = -3
+integer i, j, k;
+table(integer a, string b) t, r;
+if i == j then
+i = 5
+else
+k = i * j
+end
 end

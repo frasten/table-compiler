@@ -4,7 +4,7 @@
 Boolean type_equal(Schema schema1, Schema schema2)
 {
     Pschema p1, p2;
-    
+
     if(schema1.type != schema2.type)
         return(FALSE);
     if(schema1.type == TABLE)

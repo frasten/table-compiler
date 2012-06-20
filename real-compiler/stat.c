@@ -169,20 +169,34 @@ Code if_stat(Pnode p)
         if
         /
        /
-      expr ---> stat_list
+      expr ---> stat_list [---> stat_list]
      */
     Schema exprschema;
     Code exprcode = expr(p->child, &exprschema);
-    Code body = stat_list(p->child->brother);
+    Code bodythen = stat_list(p->child->brother);
 
     // Vincoli semantici
     if (exprschema.type != BOOLEAN)
         semerror(p->child, "Boolean expression required");
 
-    return concode(exprcode,
-                   makecode1(T_SKIPF, body.size + 1),
-                   body,
-                   endcode());
+    if (p->child->brother->brother == NULL)
+        // IF-THEN
+        return concode(exprcode,
+                       makecode1(T_SKIPF, bodythen.size + 1),
+                       bodythen,
+                       endcode());
+    else
+    {
+        // IF-THEN-ELSE
+        Code bodyelse = stat_list(p->child->brother->brother);
+        return concode(exprcode,
+                       makecode1(T_SKIPF, bodythen.size + 2),
+                       bodythen,
+                       makecode1(T_SKIP, bodyelse.size + 1),
+                       bodyelse,
+                       endcode()
+            );
+    }
 }
 
 Code read_stat(Pnode p)
