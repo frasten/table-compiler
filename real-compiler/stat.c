@@ -82,6 +82,19 @@ Code def_stat(Pnode p)
     // Carico la lista di ID delle variabili
     names = id_list(p->child->brother, &num_id);
 
+    // Vincoli semantici
+    if (repeated_names(names))
+        semerror(p, "Variable redeclaration");
+
+    // Controlliamo che nessuna variabile sia nell'environment
+    for (Pname n = names; n != NULL; n = n->next)
+    {
+        if (name_in_environment(n->name))
+            semerror(p, "Variable redeclaration");
+        // Aggiungo la nuova variabile nell'environment
+        insert_name_into_environment(n->name);
+    }
+
     // Genero il codice per allocare ognuna delle variabili
     code_ret.head = NULL;
     for (; names != NULL; names = names->next)
@@ -103,12 +116,6 @@ Pname id_list(Pnode p, int* quanti)
     {
         Pname lista = (Pname)newmem(sizeof(Name));
         lista->name = p->value.sval;
-
-        // Controllo definizione, inserisco nell'environment
-        if (name_in_environment(lista->name))
-            semerror(p, "Variable redeclaration");
-        // Aggiungo la nuova variabile nell'environment
-        insert_name_into_environment(lista->name);
 
         (*quanti)++;
         lista->next = id_list(p->brother, quanti);
@@ -145,22 +152,6 @@ Code assign_stat(Pnode p)
         exprcode,
         makecode1(T_STO, symbol->oid),
         endcode());
-}
-
-Code attr_code(Pnode p)
-{
-    /*
-           attr_decl
-            /
-           /
-        atomic_type ---> ID
-     */
-    if (p->child->type != N_ATOMIC_TYPE) noderror(p->child);
-    if (p->child->brother->type != N_ID) noderror(p->child->brother);
-
-    // TODO: cosa dovrei mettere in questa funzione???
-
-    return endcode();
 }
 
 Code if_stat(Pnode p)

@@ -45,6 +45,7 @@ Boolean duplicated(char* name, Pschema schema)
             return TRUE;
         schema = schema->next;
     }
+    return FALSE;
 }
 
 Boolean homonyms(Pschema schema1, Pschema schema2)
@@ -122,17 +123,17 @@ Code expr(Pnode root, Pschema pschema)
 
                 return makecode1(T_LOB, symbol->oid);
             }
-            else if (name_in_constack(valname(root), &offset, &context) != NULL)
-            {
-                /* Attributo nel contesto corrente */
-                printf("Contesto corrente.\n");
-                // TODO pschema...
-            }
-            else
-            {
-                /* Attributo in un contesto esterno */
-                printf("Contesto esterno.\n");
-                // TODO pschema...
+            else {
+                // Proviamo a vedere se e' un attributo
+                Pschema tmp = name_in_constack(valname(root), &offset, &context);
+                if (tmp != NULL)
+                {
+                    // tmp mi serve o posso integrarlo nell'if qui sopra?
+                    printf("Attributo.\n");
+                    schprint(*tmp);
+                    //return makecode3(T_LAT, offset, );
+                }
+                else semerror(root, "Undefined identifier");
             }
             break;
         case N_MATH_EXPR:
@@ -272,6 +273,54 @@ Code expr(Pnode root, Pschema pschema)
                     break;
                 default: noderror(root);
             }
+        case N_PROJECT_EXPR:
+            /*
+              project_expr
+                  /
+                 /
+                expr --> ID --> ID --> ...
+             */
+            code1 = expr(root->child, &schema1);
+
+            // Vincoli semantici
+            if (schema1.type != TABLE)
+                semerror(root->child, "Project requires table operand");
+
+            int num_id = 0;
+            Pname names = id_list(root->child->brother, &num_id);
+            if (repeated_names(names))
+                semerror(root->child, "Duplicated name in list");
+
+
+            // Costruzione dello Schema in uscita: filtro solo gli ID selezionati,
+            // e in quell'ordine.
+            pschema->type = TABLE;
+            Pschema filtered = NULL, attr, attr_copy;
+            for (Pname n = names; n != NULL; n = n->next)
+            {
+                attr = name_in_schema(n->name, schema1.next);
+                if (attr == NULL)
+                    semerror(root->child, "Unknown projection attribute name");
+                attr_copy = schemanode(attr->name, attr->type);
+                if (filtered == NULL)
+                {
+                    filtered = attr_copy;
+                    pschema->next = filtered;
+                }
+                else
+                {
+                    filtered->next = attr_copy;
+                    filtered = filtered->next;
+                }
+            }
+
+            return concode(code1,
+                           makecode1(T_PROJ, num_id),
+                           attr_code(root->child->brother, &schema1),
+                           makecode(T_ENDPROJ),
+                           makecode(T_REMDUP),
+                           endcode()
+                           );
         default: noderror(root);
     }
     return endcode();
@@ -292,6 +341,24 @@ Pschema atomic_type(Pnode p)
         noderror(p);
     Pschema schema = schemanode(NULL, p->value.ival);
     return schema;
+}
+
+Code attr_code(Pnode p, Pschema schema)
+{
+    Code retcode = endcode(); // TODO: Memory leak?
+    // Utilizzata all'interno di Project
+    for (;p != NULL; p = p->brother)
+    {
+        Code tmpcode = makecode2(T_ATTR,
+                                 get_attribute_offset(schema->next, valname(p)),
+                                 get_size(name_in_schema(valname(p), schema))
+                                 );
+        if (retcode.head == NULL)
+            retcode = tmpcode;
+        else
+            retcode = appcode(retcode, tmpcode);
+    }
+    return retcode;
 }
 
 /* Crea uno Schema vuoto */

@@ -237,7 +237,7 @@ char *clear_string(char *s),
      
 Code appcode(Code, Code),
      assign_stat(Pnode),
-     attr_code(Pnode),
+     attr_code(Pnode, Pschema),
      def_stat(Pnode),
      concode(Code, Code, ...),
      endcode(),
