@@ -146,79 +146,94 @@ Code assign_stat(Pnode p)
 
     // Type checking:
     if (!type_equal(symbol->schema, *exprschema))
-    	semerror(p->child->brother, "Incompatible types in assignment");
+        semerror(p->child->brother, "Incompatible types in assignment");
 
-	return concode(
-		exprcode,
-		makecode1(T_STO, symbol->oid),
-		endcode());
+    return concode(
+        exprcode,
+        makecode1(T_STO, symbol->oid),
+        endcode());
 }
 
 Code attr_code(Pnode p)
 {
-	// TODO
-	return endcode();
+    // TODO
+    return endcode();
 }
 
 Code if_stat(Pnode p)
 {
-	// TODO
-	return endcode();
+    /*
+        if
+        /
+       /
+      expr ---> stat_list
+     */
+    Schema exprschema;
+    Code exprcode = expr(p->child, &exprschema);
+    Code body = stat_list(p->child->brother);
+
+    // Vincoli semantici
+    if (exprschema.type != BOOLEAN)
+        semerror(p->child, "Boolean expression required");
+
+    return concode(exprcode,
+                   makecode1(T_SKIPF, body.size + 1),
+                   body,
+                   endcode());
 }
 
 Code read_stat(Pnode p)
 {
-	// TODO
-	return endcode();
+    // TODO
+    return endcode();
 }
 
 Code specifier(Pnode p)
 {
-	// TODO
-	return endcode();
+    // TODO
+    return endcode();
 }
 
 Code stat(Pnode p)
 {
-	// TODO
-	switch (p->type)
-	{
-		case N_DEF_STAT:
-			return def_stat(p);
-		case N_ASSIGN_STAT:
-			return assign_stat(p);
-		case N_IF_STAT:
-			printf("IF_STAT\n");
-			return if_stat(p);
-		case N_WHILE_STAT:
-			printf("WHILE_STAT\n");
-			return while_stat(p);
-		case N_READ_STAT:
-			printf("READ_STAT\n");
-			return read_stat(p);
-		case N_WRITE_STAT:
-			printf("WRITE_STAT\n");
-			return write_stat(p);
-		default:
-			noderror(p);
-	}
-	return endcode();
+    // TODO
+    switch (p->type)
+    {
+        case N_DEF_STAT:
+            return def_stat(p);
+        case N_ASSIGN_STAT:
+            return assign_stat(p);
+        case N_IF_STAT:
+            return if_stat(p);
+        case N_WHILE_STAT:
+            printf("WHILE_STAT\n");
+            return while_stat(p);
+        case N_READ_STAT:
+            printf("READ_STAT\n");
+            return read_stat(p);
+        case N_WRITE_STAT:
+            printf("WRITE_STAT\n");
+            return write_stat(p);
+        default:
+            noderror(p);
+    }
+    return endcode();
 }
 
 Code tuple_const(Pnode p, Pschema s)
 {
-	// TODO
-	return endcode();
+    // TODO
+    return endcode();
 }
 
 Code while_stat(Pnode p)
 {
-	// TODO
-	return endcode();
+    // TODO
+    return endcode();
 }
 
 Code write_stat(Pnode p)
 {
-	// TODO
-	return endcode();
+    // TODO
+    return endcode();
 }
