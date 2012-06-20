@@ -36,4 +36,4 @@ lexer.c: lexer.lex
 	$(Q)flex -o $@ --header-file=lexer.h lexer.lex
 
 clean:
-	rm -f *.o $(EXECUTABLE) *.output parser.c lexer.c parser.h
+	rm -f *.o $(EXECUTABLE) *.output parser.c lexer.c parser.h lexer.h
