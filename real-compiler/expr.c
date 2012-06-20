@@ -37,6 +37,30 @@ Boolean repeated_names(Pname n)
     return FALSE;
 }
 
+Boolean duplicated(char* name, Pschema schema)
+{
+    // TODO: non so se va implementata cosi', dipende a cosa serve.
+    while (schema != NULL) {
+        if (schema->name == name)
+            return TRUE;
+        schema = schema->next;
+    }
+}
+
+Boolean homonyms(Pschema schema1, Pschema schema2)
+{
+    // TODO: non so se va implementata cosi', dipende se l'ordine conta negli schemi.
+    while (schema1 != NULL && schema2 != NULL)
+    {
+        if (schema1->name != schema2->name)
+            return FALSE;
+        // TODO: non e' che vado a toccare gli oggetti passati in input? teoricamente no.
+        schema1 = schema1->next;
+        schema2 = schema2->next;
+    }
+    return TRUE;
+}
+
 Pschema clone_schema(Pschema pschema)
 {
     Pschema clone, psch;
