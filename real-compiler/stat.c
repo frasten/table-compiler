@@ -136,12 +136,12 @@ Code assign_stat(Pnode p)
        /
       ID ---> expr
  */
-    if (!name_in_environment(p->child->value.sval))
-    	semerror(p->child, "Undefined identifier in assignment");
 
-    // Carico gli schemi di ID e expr
-    symbol = lookup(p->child->value.sval);
-	exprschema = clone_schema(&symbol->schema);
+    // Semantica: Carico gli schemi di ID e expr
+    symbol = lookup(valname(p->child));
+    if (symbol == NULL)
+        semerror(p->child, "Undefined identifier in assignment");
+    exprschema = clone_schema(&symbol->schema);
     exprcode = expr(p->child->brother, exprschema);
 
     // Type checking:
