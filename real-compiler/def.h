@@ -265,7 +265,8 @@ Opdescr *get_descr(Operator);
 
 Operator codop(char*);
 
-Pname id_list(Pnode, int*);
+Pname id_list(Pnode, int*),
+      add_name_to_list(char*, Pname);
      
 Pnode boolconstnode(int),
       idnode(char*),

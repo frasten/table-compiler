@@ -23,6 +23,20 @@ Boolean compatible(char *name1, char *name2)
     return(name1 == NULL || name2 == NULL || name1 == name2);
 }
 
+Boolean repeated_names(Pname n)
+{
+    Pname nleft, nright;
+    for (nleft = n; nleft != NULL; nleft = nleft->next)
+    {
+        for (nright = nleft->next; nright != NULL; nright = nright->next)
+        {
+            if (nleft->name == nright->name)
+                return TRUE;
+        }
+    }
+    return FALSE;
+}
+
 Pschema clone_schema(Pschema pschema)
 {
     Pschema clone, psch;
@@ -49,6 +63,17 @@ Pschema append_schemas(Pschema psch1, Pschema psch2)
         psch1 = psch1->next;
     psch1->next = psch2;
     return(head);
+}
+
+
+Pname add_name_to_list(char* name, Pname list)
+{
+    Pname new_element = (Pname) newmem(sizeof(Name));
+    new_element->name = name;
+    new_element->next = list;
+
+    list = new_element;
+    return list;
 }
 
 
@@ -258,6 +283,7 @@ Pschema table_type(Pnode p)
         atomic_type ---> ID
      */
 
+    Pname attr_name_list = NULL;
     for (decl = p->child; decl != NULL; decl = decl->brother)
     {
         if (decl->child->type != N_ATOMIC_TYPE) noderror(decl->child);
@@ -265,8 +291,13 @@ Pschema table_type(Pnode p)
 
         attrschema = atomic_type(decl->child);
         attrschema->name = valname(decl->child->brother);
+        attr_name_list = add_name_to_list(attrschema->name, attr_name_list);
 
         tableschema = append_schemas(tableschema, attrschema);
     }
+    // Controllo semantico di attributi duplicati
+    if (repeated_names(attr_name_list))
+        semerror(p, "Duplicate attribute name");
+
     return tableschema;
 }
