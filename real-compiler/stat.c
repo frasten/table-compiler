@@ -53,61 +53,48 @@ Code stat_list(Pnode p)
 
 Code def_stat(Pnode p)
 {
-    int size = 0;
 /*
     def_stat
       /
      /
    type ---> ID ---> ID
 */
-    Code c_temp, c_ret;
-    int num_id = 0;
+    int num_id = 0, op;
+    Code c_temp, code_ret;
     Pname names;
     Pnode nodo_type = p->child;
+    Schema schema;
 
     switch (nodo_type->type)
     {
         case N_ATOMIC_TYPE:
-        {
-            switch (p->child->value.ival)
-            {
-                case INTEGER:
-                case BOOLEAN:
-                    size = sizeof(int);
-                case STRING:
-                    size = sizeof(char *);
-            }
-
-            names = id_list(p->child->brother, &num_id);
-
-            // Genero il codice per allocare ognuna delle variabili
-            c_ret.head = NULL;
-            for (; names != NULL; names = names->next)
-            {
-                Pschema schema;
-                c_temp = makecode1(T_NEWATOM, size);
-                c_ret = (c_ret.head == NULL ? c_temp : appcode(c_ret, c_temp));
-
-                // Aggiungo il nome alla Symbol Table
-                schema = atomic_type(nodo_type);
-                schema->name = names->name;
-                insert(*schema);
-            }
-            return c_ret;
-        }
+            op = T_NEWATOM;
+            break;
         case N_TABLE_TYPE:
-            /*
-                table_type
-                  /
-                 /
-                attr_decl --> attr_decl --> .....
-             */
-            treeprint(p, 0);
-            return makecode1(T_NEWTAB, size);
+            op = T_NEWTAB;
+            break;
         default:
             noderror(p->child);
     }
-    return endcode();
+
+    /* Operazioni comuni tra dati atomici e table */
+
+    // Carico la lista di ID delle variabili
+    names = id_list(p->child->brother, &num_id);
+
+    // Genero il codice per allocare ognuna delle variabili
+    code_ret.head = NULL;
+    for (; names != NULL; names = names->next)
+    {
+        // Aggiungo il nome alla Symbol Table
+        schema = type(nodo_type);
+        schema.name = names->name;
+        insert(schema);
+
+        c_temp = makecode1(op, get_size(&schema));
+        code_ret = (code_ret.head == NULL ? c_temp : appcode(code_ret, c_temp));
+    }
+    return code_ret;
 }
 
 Pname id_list(Pnode p, int* quanti)
@@ -162,7 +149,17 @@ Code assign_stat(Pnode p)
 
 Code attr_code(Pnode p)
 {
-    // TODO
+    /*
+           attr_decl
+            /
+           /
+        atomic_type ---> ID
+     */
+    if (p->child->type != N_ATOMIC_TYPE) noderror(p->child);
+    if (p->child->brother->type != N_ID) noderror(p->child->brother);
+
+    // TODO: cosa dovrei mettere in questa funzione???
+
     return endcode();
 }
 

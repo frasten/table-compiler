@@ -42,7 +42,9 @@ Pschema clone_schema(Pschema pschema)
 Pschema append_schemas(Pschema psch1, Pschema psch2)
 {
     Pschema head = psch1;
-    
+
+    if (psch1 == NULL)
+        return psch2;
     while(psch1->next)
         psch1 = psch1->next;
     psch1->next = psch2;
@@ -204,14 +206,17 @@ Code expr(Pnode root, Pschema pschema)
         case N_BOOLCONST:
             pschema->type = BOOLEAN;
             return make_ldint(root->value.ival);
-        // TODO
     }
     return endcode();
 }
 
 Schema type(Pnode p)
 {
-    // TODO
+    if (p->type == N_ATOMIC_TYPE)
+        return *atomic_type(p);
+    else if (p->type == N_TABLE_TYPE)
+        return *table_type(p);
+    else noderror(p);
 }
 
 Pschema atomic_type(Pnode p)
@@ -234,5 +239,34 @@ Pschema schemanode(char* name, int type)
 
 Pschema table_type(Pnode p)
 {
-    // TODO
+    Pnode decl;
+    Pschema tableschema, attrschema;
+    /*
+        table_type
+          /
+         /
+        attr_decl --> attr_decl --> .....
+     */
+    if (p->type != N_TABLE_TYPE)
+        noderror(p);
+    tableschema = schemanode(NULL, TABLE);
+
+    /*
+           attr_decl
+            /
+           /
+        atomic_type ---> ID
+     */
+
+    for (decl = p->child; decl != NULL; decl = decl->brother)
+    {
+        if (decl->child->type != N_ATOMIC_TYPE) noderror(decl->child);
+        if (decl->child->brother->type != N_ID) noderror(decl->child->brother);
+
+        attrschema = atomic_type(decl->child);
+        attrschema->name = valname(decl->child->brother);
+
+        tableschema = append_schemas(tableschema, attrschema);
+    }
+    return tableschema;
 }

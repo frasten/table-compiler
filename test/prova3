@@ -1,6 +1,4 @@
 program
-integer a;
-	if true then
-a = 1
-end
+	integer a;
+	string b
 end
