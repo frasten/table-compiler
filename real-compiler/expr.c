@@ -383,12 +383,12 @@ Code expr(Pnode root, Pschema pschema)
                 case EXISTS:
                     pschema->type = BOOLEAN;
                     op = T_EXS;
-                    op = T_ENDEXS;
+                    op2 = T_ENDEXS;
                     break;
                 case ALL:
                     pschema->type = BOOLEAN;
                     op = T_ALL;
-                    op = T_ENDALL;
+                    op2 = T_ENDALL;
                     break;
                 default: noderror(root);
             }
