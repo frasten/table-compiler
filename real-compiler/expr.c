@@ -274,6 +274,7 @@ Code expr(Pnode root, Pschema pschema)
                 default: noderror(root);
             }
         case N_PROJECT_EXPR:
+        {
             /*
               project_expr
                   /
@@ -321,6 +322,47 @@ Code expr(Pnode root, Pschema pschema)
                            makecode(T_REMDUP),
                            endcode()
                            );
+        }
+        case N_RENAME_EXPR:
+        {
+            /*
+               rename_expr
+                   /
+                  /
+                expr --> id --> id...
+             */
+            code1 = expr(root->child, &schema1);
+
+            // Vincoli semantici
+            if (schema1.type != TABLE)
+                semerror(root->child, "Rename requires table operand");
+
+            int num_id = 0;
+            Pname names = id_list(root->child->brother, &num_id);
+            if (repeated_names(names))
+                semerror(root->child, "Duplicated name in list");
+
+            // Conto il numero di attributi attuali della tabella
+            int old_num = 0;
+            for (Pschema s = schema1.next; s != NULL; s = s->next)
+            {
+                old_num++;
+            }
+            if (old_num != num_id)
+                semerror(root->child, "Wrong number of attributes in rename");
+
+            // Rinomino le variabili nello schema
+            pschema->next = clone_schema(schema1.next);
+            Pschema schemaptr = pschema->next;
+            for (Pname n = names; n != NULL; n = n->next)
+            {
+                schemaptr->name = n->name;
+
+                schemaptr = schemaptr->next;
+            }
+
+            return code1;
+        }
         default: noderror(root);
     }
     return endcode();
