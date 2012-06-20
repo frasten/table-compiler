@@ -58,25 +58,26 @@ Code expr(Pnode root, Pschema pschema) {
 
     // TODO
     // 
-    // 
     pschema->name = NULL;
     pschema->next = NULL;
     switch(root->type) {
         case N_ID : // TODO
-            if ((symbol = lookup(root->value.sval)) != NULL) {
-                // Variabile
+            if ((symbol = lookup(valname(root))) != NULL) {
+                /* Variabile */
                 // Assegno il tipo
                 *pschema = symbol->schema;
 
                 return makecode1(T_LOB, symbol->oid);
             }
-            else if (name_in_constack(root->value.sval, &offset, &context) != NULL) {
-                // Attributo nel contesto corrente
+            else if (name_in_constack(valname(root), &offset, &context) != NULL) {
+                /* Attributo nel contesto corrente */
                 printf("Contesto corrente.\n");
+                // TODO
             }
             else {
-                // Attributo in un contesto esterno
+                /* Attributo in un contesto esterno */
                 printf("Contesto esterno.\n");
+                // TODO
             }
             break;
         case N_MATH_EXPR:
@@ -102,16 +103,47 @@ Code expr(Pnode root, Pschema pschema) {
                            code2,
                            makecode(op),
                            endcode());
-        // TODO
+        case N_LOGIC_EXPR:
+            code1 = expr(root->child, &schema1);
+            code2 = expr(root->child->brother, &schema2);
+
+            // Vincoli semantici
+            if (schema1.type != BOOLEAN || schema2.type != BOOLEAN)
+                semerror(root, "Logic operation requires boolean types");
+
+            pschema->type = BOOLEAN;
+
+            switch (qualifier(root)) {
+                case AND:
+                    return concode(
+                        code1,
+                        makecode1(T_SKIPF, code2.size + 2),
+                        code2,
+                        makecode1(T_SKIP, 2),
+                        makecode1(T_LDINT, 0),
+                        endcode()
+                        );
+                case OR:
+                    return concode(
+                        code1,
+                        makecode1(T_SKIPF, 3),
+                        makecode1(T_LDINT, 1),
+                        makecode1(T_SKIP, code2.size + 1),
+                        code2,
+                        endcode()
+                        );
+                default: noderror(root);
+            }
         case N_INTCONST:
             pschema->type = INTEGER;
             return make_ldint(root->value.ival);
         case N_STRCONST:
             pschema->type = STRING;
-            return make_ldstr(root->value.sval);
+            return make_ldstr(valname(root));
         case N_BOOLCONST:
             pschema->type = BOOLEAN;
             return make_ldint(root->value.ival);
+        // TODO
     }
     return endcode();
 }

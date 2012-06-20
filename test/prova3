@@ -1,6 +1,6 @@
 program
-	integer a, b;
-	string c;
-	a = 1;
-	b = a
+	boolean a, b, c;
+	a = true;
+	b = false;
+	c = a or b
 end
