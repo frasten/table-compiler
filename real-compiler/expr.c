@@ -231,6 +231,24 @@ Code expr(Pnode root, Pschema pschema)
         case N_BOOLCONST:
             pschema->type = BOOLEAN;
             return make_ldint(root->value.ival);
+        case N_NEG_EXPR:
+            code1 = expr(root->child, &schema1);
+            switch (qualifier(root))
+            {
+                case NOT:
+                    if (schema1.type != BOOLEAN)
+                        semerror(root->child, "Logical negation requires boolean type");
+                    pschema->type = BOOLEAN;
+                    return appcode(code1, makecode(T_NEG));
+                case '-':
+                    if (schema1.type != INTEGER)
+                        semerror(root->child, "Unary minus requires integer type");
+                    pschema->type = INTEGER;
+                    return appcode(code1, makecode(T_UMI));
+                    break;
+                default: noderror(root);
+            }
+        default: noderror(root);
     }
     return endcode();
 }
