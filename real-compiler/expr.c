@@ -106,7 +106,7 @@ Code expr(Pnode root, Pschema pschema)
 {
     Code code1, code2;
     Schema schema1, schema2;
-    int op, offset, context;
+    int op, op2, offset, context;
     Psymbol symbol;
 
     // TODO
@@ -128,10 +128,9 @@ Code expr(Pnode root, Pschema pschema)
                 Pschema tmp = name_in_constack(valname(root), &offset, &context);
                 if (tmp != NULL)
                 {
-                    // tmp mi serve o posso integrarlo nell'if qui sopra?
-                    printf("Attributo.\n");
-                    schprint(*tmp);
-                    //return makecode3(T_LAT, offset, );
+                    pschema->name = valname(root);
+                    pschema->type = tmp->type;
+                    return makecode3(T_LAT, offset, context, get_size(tmp));
                 }
                 else semerror(root, "Undefined identifier");
             }
@@ -363,6 +362,44 @@ Code expr(Pnode root, Pschema pschema)
 
             return code1;
         }
+        case N_SELECT_EXPR:
+            code2 = expr(root->child->brother, &schema2);
+            push_context(schema2.next);
+            code1 = expr(root->child, &schema1);            
+            pop_context();
+
+            if (schema1.type != BOOLEAN)
+                semerror(root->child, "Selection requires boolean predicate");
+            if (schema2.type != TABLE)
+                semerror(root->child->brother, "Selection requires table operand");
+
+            switch (qualifier(root)) {
+                case SELECT:
+                    pschema->type = TABLE;
+                    pschema->next = clone_schema(schema2.next);
+                    op = T_SEL;
+                    op2 = T_ENDSEL;
+                    break;
+                case EXISTS:
+                    pschema->type = BOOLEAN;
+                    op = T_EXS;
+                    op = T_ENDEXS;
+                    break;
+                case ALL:
+                    pschema->type = BOOLEAN;
+                    op = T_ALL;
+                    op = T_ENDALL;
+                    break;
+                default: noderror(root);
+            }
+
+            return concode(
+                code2,
+                makecode1(op, code1.size),
+                code1,
+                makecode1(op2, code1.size),
+                endcode()
+                );
         default: noderror(root);
     }
     return endcode();

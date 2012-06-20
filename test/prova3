@@ -1,5 +1,4 @@
 program
-table (integer a, string b, boolean c) T;
-table (integer d, string e, boolean a) G;
-G = rename [d, e, a] T
+table (integer a, string b, boolean c) T, G;
+G = select [c] G
 end
