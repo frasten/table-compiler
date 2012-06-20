@@ -1,6 +1,4 @@
 program
-integer i, j;
-string x, y;
-boolean b;
-b = (i > j or x < y)
+integer i, j, k;
+i = (i + 5) * (j - k)
 end

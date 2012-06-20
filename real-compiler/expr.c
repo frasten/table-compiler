@@ -75,13 +75,13 @@ Code expr(Pnode root, Pschema pschema)
             {
                 /* Attributo nel contesto corrente */
                 printf("Contesto corrente.\n");
-                // TODO
+                // TODO pschema...
             }
             else
             {
                 /* Attributo in un contesto esterno */
                 printf("Contesto esterno.\n");
-                // TODO
+                // TODO pschema...
             }
             break;
         case N_MATH_EXPR:

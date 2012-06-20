@@ -302,7 +302,7 @@ void codeprint(Code, int),
      *newmem(int),
      noderror(Pnode),
      pop_context(),
-     pop_environmet(),
+     pop_environment(),
      push_context(Pschema),
      push_environment(),
      eliminate(char*),
@@ -315,4 +315,5 @@ void codeprint(Code, int),
 
 int qualifier(Pnode),
     get_size(Pschema),
-    get_attribute_offset(Pschema, char*);
+    get_attribute_offset(Pschema, char*),
+    numobj_in_current_env();

@@ -58,12 +58,14 @@ Code def_stat(Pnode p)
    type ---> ID ---> ID
 */
 	Code c_temp, c_ret;
-    Psymbol symbol;
+    int num_id = 0;
+    Pname names;
     Pnode nodo_type = p->child;
 
 	switch (nodo_type->type)
 	{
-		case N_ATOMIC_TYPE: {
+		case N_ATOMIC_TYPE:
+		{
 			int size = 0;
 		    switch (p->child->value.ival)
 		    {
@@ -74,22 +76,19 @@ Code def_stat(Pnode p)
 		            size = sizeof(char *);
 			}
 
+			names = id_list(p->child->brother, &num_id);
 
-			c_ret.head = NULL;
 			// Genero il codice per allocare ognuna delle variabili
-			for (p = p->child->brother; p != NULL; p = p->brother) {
+			c_ret.head = NULL;
+			for (; names != NULL; names = names->next)
+			{
 				Pschema schema;
 				c_temp = makecode1(T_NEWATOM, size);
 				c_ret = (c_ret.head == NULL ? c_temp : appcode(c_ret, c_temp));
 
-				// Gestione della Symbol Table
-				if (name_in_environment(p->value.sval))
-			    	semerror(p, "Variable redeclaration");
-			    // Aggiungo la nuova variabile nell'environment...
-			    insert_name_into_environment(p->value.sval);
-			    // ... e nella symbol table
+				// Aggiungo il nome alla Symbol Table
 			    schema = atomic_type(nodo_type);
-			    schema->name = p->value.sval;
+			    schema->name = names->name;
 			    insert(*schema);
 			}
 			return c_ret;
@@ -103,8 +102,24 @@ Code def_stat(Pnode p)
 	return endcode();
 }
 
-Pname id_list(Pnode p, int* boh) {
-	// TODO
+Pname id_list(Pnode p, int* quanti)
+{
+	if (p != NULL)
+	{
+		Pname lista = (Pname)newmem(sizeof(Name));
+		lista->name = p->value.sval;
+
+		// Controllo definizione, inserisco nell'environment
+		if (name_in_environment(lista->name))
+	    	semerror(p, "Variable redeclaration");
+	    // Aggiungo la nuova variabile nell'environment
+	    insert_name_into_environment(lista->name);
+
+		(*quanti)++;
+		lista->next = id_list(p->brother, quanti);
+		return lista;
+	}
+	else return NULL;
 }
 
 
