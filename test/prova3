@@ -1,6 +1,6 @@
 program
-	boolean a, b, c;
-	a = true;
-	b = false;
-	c = a or b
+integer i, j;
+string x, y;
+boolean b;
+b = (i > j or x < y)
 end

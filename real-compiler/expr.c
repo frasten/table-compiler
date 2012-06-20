@@ -110,7 +110,6 @@ Code expr(Pnode root, Pschema pschema) {
             // Vincoli semantici
             if (schema1.type != BOOLEAN || schema2.type != BOOLEAN)
                 semerror(root, "Logic operation requires boolean types");
-
             pschema->type = BOOLEAN;
 
             switch (qualifier(root)) {
@@ -134,6 +133,57 @@ Code expr(Pnode root, Pschema pschema) {
                         );
                 default: noderror(root);
             }
+        case N_COMP_EXPR:
+            code1 = expr(root->child, &schema1);
+            code2 = expr(root->child->brother, &schema2);
+            pschema->type = BOOLEAN;
+
+            switch (qualifier(root)) {
+                case EQ:
+                case NE:
+                    if (type_equal(schema1, schema2))
+                        semerror(root, "Comparison requires same types");
+                    return concode(
+                        code1,
+                        code2,
+                        makecode(qualifier(root) == EQ ? T_EQU : T_NEQ),
+                        endcode()
+                        );
+                case '>':
+                case GE:
+                case '<':
+                case LE:
+                    if ((schema1.type == INTEGER && schema2.type == INTEGER) ||
+                        (schema1.type == STRING && schema2.type == STRING)) {
+
+                        if (schema1.type == INTEGER) {
+                            switch (qualifier(root)) {
+                                case '>': op = T_IGT; break;
+                                case GE : op = T_IGE; break;
+                                case '<': op = T_ILT; break;
+                                case LE : op = T_ILE; break;
+                            }
+                        }
+                        else {
+                            switch (qualifier(root)) {
+                                case '>': op = T_SGT; break;
+                                case GE : op = T_SGE; break;
+                                case '<': op = T_SLT; break;
+                                case LE : op = T_SLE; break;
+                            }
+                        }
+
+                        // Vincoli OK
+                        return concode(
+                            code1,
+                            code2,
+                            makecode(op),
+                            endcode()
+                            );
+                    }
+                    else semerror(root, "Comparison requires same types");
+            }
+
         case N_INTCONST:
             pschema->type = INTEGER;
             return make_ldint(root->value.ival);
