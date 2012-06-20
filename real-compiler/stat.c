@@ -223,7 +223,6 @@ Code stat(Pnode p)
         case N_IF_STAT:
             return if_stat(p);
         case N_WHILE_STAT:
-            printf("WHILE_STAT\n");
             return while_stat(p);
         case N_READ_STAT:
             printf("READ_STAT\n");
@@ -245,8 +244,25 @@ Code tuple_const(Pnode p, Pschema s)
 
 Code while_stat(Pnode p)
 {
-    // TODO
-    return endcode();
+    /*
+        while
+        /
+       /
+      expr ---> stat_list
+     */
+    Schema exprschema;
+    Code exprcode = expr(p->child, &exprschema);
+    Code body = stat_list(p->child->brother);
+
+    // Vincoli semantici
+    if (exprschema.type != BOOLEAN)
+        semerror(p->child, "Boolean expression required");
+
+    return concode(exprcode,
+                   makecode1(T_SKIPF, body.size + 2),
+                   body,
+                   makecode1(T_SKIP, -(exprcode.size + body.size + 1)),
+                   endcode());
 }
 
 Code write_stat(Pnode p)
