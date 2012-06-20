@@ -34,15 +34,15 @@ Code stat_list(Pnode p)
 /*
     stat_list
       /
-	 /
-	stat --> stat --> stat
+     /
+    stat --> stat --> stat
 */
-	Code s = stat(p->child);
-	// Scorro gli stats, dal secondo in poi
-	for (p = p->child->brother; p != NULL; p = p->brother)
-	{
-		s = appcode(s, stat(p));
-	}
+    Code s = stat(p->child);
+    // Scorro gli stats, dal secondo in poi
+    for (p = p->child->brother; p != NULL; p = p->brother)
+    {
+        s = appcode(s, stat(p));
+    }
 
     // Tolgo le variabili dichiarate in questo environment:
     if ((env_num_vars = numobj_in_current_env()) > 0)
@@ -53,83 +53,89 @@ Code stat_list(Pnode p)
 
 Code def_stat(Pnode p)
 {
+    int size = 0;
 /*
     def_stat
       /
      /
    type ---> ID ---> ID
 */
-	Code c_temp, c_ret;
+    Code c_temp, c_ret;
     int num_id = 0;
     Pname names;
     Pnode nodo_type = p->child;
 
-	switch (nodo_type->type)
-	{
-		case N_ATOMIC_TYPE:
-		{
-			int size = 0;
-		    switch (p->child->value.ival)
-		    {
-		        case INTEGER:
-		        case BOOLEAN:
-		            size = sizeof(int);
-		        case STRING:
-		            size = sizeof(char *);
-			}
+    switch (nodo_type->type)
+    {
+        case N_ATOMIC_TYPE:
+        {
+            switch (p->child->value.ival)
+            {
+                case INTEGER:
+                case BOOLEAN:
+                    size = sizeof(int);
+                case STRING:
+                    size = sizeof(char *);
+            }
 
-			names = id_list(p->child->brother, &num_id);
+            names = id_list(p->child->brother, &num_id);
 
-			// Genero il codice per allocare ognuna delle variabili
-			c_ret.head = NULL;
-			for (; names != NULL; names = names->next)
-			{
-				Pschema schema;
-				c_temp = makecode1(T_NEWATOM, size);
-				c_ret = (c_ret.head == NULL ? c_temp : appcode(c_ret, c_temp));
+            // Genero il codice per allocare ognuna delle variabili
+            c_ret.head = NULL;
+            for (; names != NULL; names = names->next)
+            {
+                Pschema schema;
+                c_temp = makecode1(T_NEWATOM, size);
+                c_ret = (c_ret.head == NULL ? c_temp : appcode(c_ret, c_temp));
 
-				// Aggiungo il nome alla Symbol Table
-			    schema = atomic_type(nodo_type);
-			    schema->name = names->name;
-			    insert(*schema);
-			}
-			return c_ret;
-		}
-		case N_TABLE_TYPE:
-			// TODO
-			break;
-		default:
-			noderror(p->child);
-	}
-	return endcode();
+                // Aggiungo il nome alla Symbol Table
+                schema = atomic_type(nodo_type);
+                schema->name = names->name;
+                insert(*schema);
+            }
+            return c_ret;
+        }
+        case N_TABLE_TYPE:
+            /*
+                table_type
+                  /
+                 /
+                attr_decl --> attr_decl --> .....
+             */
+            treeprint(p, 0);
+            return makecode1(T_NEWTAB, size);
+        default:
+            noderror(p->child);
+    }
+    return endcode();
 }
 
 Pname id_list(Pnode p, int* quanti)
 {
-	if (p != NULL)
-	{
-		Pname lista = (Pname)newmem(sizeof(Name));
-		lista->name = p->value.sval;
+    if (p != NULL)
+    {
+        Pname lista = (Pname)newmem(sizeof(Name));
+        lista->name = p->value.sval;
 
-		// Controllo definizione, inserisco nell'environment
-		if (name_in_environment(lista->name))
-	    	semerror(p, "Variable redeclaration");
-	    // Aggiungo la nuova variabile nell'environment
-	    insert_name_into_environment(lista->name);
+        // Controllo definizione, inserisco nell'environment
+        if (name_in_environment(lista->name))
+            semerror(p, "Variable redeclaration");
+        // Aggiungo la nuova variabile nell'environment
+        insert_name_into_environment(lista->name);
 
-		(*quanti)++;
-		lista->next = id_list(p->brother, quanti);
-		return lista;
-	}
-	else return NULL;
+        (*quanti)++;
+        lista->next = id_list(p->brother, quanti);
+        return lista;
+    }
+    else return NULL;
 }
 
 
 Code assign_stat(Pnode p)
 {
-	Psymbol symbol;
-	Code exprcode;
-	Pschema exprschema;
+    Psymbol symbol;
+    Code exprcode;
+    Pschema exprschema;
 /*
     assign_stat
         /

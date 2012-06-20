@@ -1,4 +1,6 @@
 program
-integer i, j, k;
-i = (i + 5) * (j - k)
+integer a;
+	if true then
+a = 1
+end
 end
