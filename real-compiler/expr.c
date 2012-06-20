@@ -178,7 +178,7 @@ Code expr(Pnode root, Pschema pschema)
             {
                 case EQ:
                 case NE:
-                    if (type_equal(schema1, schema2))
+                    if (!type_equal(schema1, schema2))
                         semerror(root, "Comparison requires same types");
                     return concode(
                         code1,
