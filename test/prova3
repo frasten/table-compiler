@@ -1,8 +1,7 @@
 program
-integer i;
-string s;
-table(integer a, string b) t;
-write i + 25;
-write [ s ] select [ a >= i ] t;
-write {(1, "alpha"), (2, "beta")}
+table (integer i, string s, boolean b) t;
+t = {integer, string, boolean};
+t = {(1, "alpha", true),
+(2, "beta", false),
+(3, "gamma", true)}
 end

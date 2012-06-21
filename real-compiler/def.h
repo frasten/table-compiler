@@ -282,7 +282,8 @@ Pschema append_schemas(Pschema, Pschema),
         name_in_context(char*),
         name_in_schema(char*, Pschema),
         schemanode(char*, int),
-        table_type(Pnode);
+        table_type(Pnode),
+        tuple_to_schema(Pnode);
 	
 Psymbol insert(Schema),
         lookup(char*);

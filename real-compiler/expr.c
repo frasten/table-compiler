@@ -268,6 +268,65 @@ Code expr(Pnode root, Pschema pschema)
         case N_BOOLCONST:
             pschema->type = BOOLEAN;
             return make_ldint(root->value.ival);
+        case N_TABLE_CONST:
+        {
+            // Vediamo il primo figlio e da li' decidiamo come procedere:
+            int numtuples = 0;
+            Pschema tuple_schema;
+            Code tuples_code;
+
+            if (root->child->type == N_TUPLE_CONST)
+            {
+                /*
+                N_TABLE_CONST
+                   N_TUPLE_CONST
+                      N_INTCONST (1)
+                      N_STRCONST (alpha)
+                   N_TUPLE_CONST
+                      N_INTCONST (2)
+                      N_STRCONST (beta)
+                */
+                // Prendiamo lo Schema dal primo figlio, poi confronteremo le tuple con esso.
+                tuple_schema = tuple_to_schema(root->child);
+
+                // Ciclo dei figli
+                tuples_code = endcode();
+                for (Pnode tup = root->child; tup != NULL; tup = tup->brother)
+                {
+                    Code singlecode = tuple_const(tup, tuple_schema);
+                    if (tuples_code.head == NULL) // TODO: Memory leak
+                        tuples_code = singlecode;
+                    else
+                        tuples_code = appcode(tuples_code, singlecode);
+                    numtuples++;
+                }
+            }
+            else if (root->child->type == N_ATOMIC_TYPE)
+            {
+                /*
+                N_TABLE_CONST
+                   N_ATOMIC_TYPE (integer)
+                   N_ATOMIC_TYPE (string)
+                   N_ATOMIC_TYPE (boolean)
+                */
+
+                tuple_schema = tuple_to_schema(root);
+            }
+            else noderror(root->child);
+
+            // Impostiamo lo schema.
+            pschema->type = TABLE;
+            pschema->next = tuple_schema;
+
+            // Calcolo la dimensione della tupla in memoria
+            Value v1; v1.ival = get_size(pschema);
+            Value v2; v2.ival = numtuples;
+
+            code2 = makecode2(T_LDTAB, v1, v2);
+            if (numtuples > 0)
+                code2 = appcode(code2, tuples_code);
+            return appcode(code2, makecode(T_ENDTAB));
+        }
         case N_NEG_EXPR:
             code1 = expr(root->child, &schema1);
             switch (qualifier(root))
@@ -527,6 +586,34 @@ Code attr_code(Pnode p, Pschema schema)
             retcode = appcode(retcode, tmpcode);
     }
     return retcode;
+}
+
+Pschema tuple_to_schema(Pnode p)
+{
+    Pschema tmp, result = NULL;
+    for (Pnode attr = p->child; attr != NULL; attr = attr->brother)
+    {
+        Pschema nuovo = (Pschema) newmem(sizeof(Schema));
+        if (attr->type == N_ATOMIC_TYPE)
+        {
+            // Per tuple di tipi
+            nuovo->type = attr->value.ival;
+        }
+        else
+        {
+            Schema tipo;
+            expr(attr, &tipo);
+            nuovo->type = tipo.type;
+        }
+        if (result == NULL)
+            result = tmp = nuovo;
+        else
+        {
+            tmp->next = nuovo;
+            tmp = tmp->next;
+        }
+    }
+    return result;
 }
 
 /* Crea uno Schema vuoto */
