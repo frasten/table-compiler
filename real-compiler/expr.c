@@ -437,6 +437,36 @@ Code expr(Pnode root, Pschema pschema)
                 makecode1(T_ENDJOIN, code2.size),
                 endcode()
                 );
+        case N_UPDATE_EXPR:
+        {
+            code1 = expr(root->child, &schema1);
+            push_context(schema1.next);
+            code2 = expr(root->child->brother->brother, &schema2);
+            pop_context(); // TODO: qui o su?
+
+            // Vincoli semantici
+            if (schema1.type != TABLE)
+                semerror(root, "Update requires table operand");
+
+            Pschema attr = name_in_schema(valname(root->child->brother), schema1.next);
+            if (attr == NULL)
+                semerror(root->child->brother, "Unknown attribute name");
+
+            if (!type_equal(schema2, *attr))
+                semerror(root->child->brother->brother, "Attribute type and expression type must be equal in update");
+
+            pschema->type = TABLE;
+            pschema->next = clone_schema(schema1.next);
+
+            return concode(
+                code1,
+                makecode3(T_UPD, get_attribute_offset(schema1.next, attr->name), get_size(attr), code2.size),
+                code2,
+                makecode1(T_ENDUPD, code2.size),
+                makecode(T_REMDUP),
+                endcode()
+                );
+        }
         default: noderror(root);
     }
     return endcode();

@@ -1,6 +1,5 @@
 program
-table(integer a, string b) R;
-table(string c, boolean d) T;
-table(integer a, string b, string c, boolean d) Res;
-Res = R join [ b == c ] T
+integer i;
+table(integer a, string b) t, w;
+w = update [ a = i + 8 ] t
 end
