@@ -151,30 +151,30 @@ Code makecode(Operator op)
     return code;
 }
 
-Code makecode1(Operator op, int arg)
+Code makecode1(Operator op, Value arg)
 {
     Code code;
 
     code = makecode(op);
-    code.head->args[0].ival = arg;
+    code.head->args[0] = arg;
     return code;
 }
 
-Code makecode2(Operator op, int arg1, int arg2)
+Code makecode2(Operator op, Value arg1, Value arg2)
 {
     Code code;
 
     code = makecode1(op, arg1);
-    code.head->args[1].ival = arg2;
+    code.head->args[1] = arg2;
     return code;
 }
 
-Code makecode3(Operator op, int arg1, int arg2, int arg3)
+Code makecode3(Operator op, Value arg1, Value arg2, Value arg3)
 {
     Code code;
 
     code = makecode2(op, arg1, arg2);
-    code.head->args[2].ival = arg3;
+    code.head->args[2] = arg3;
     return code;
 }
 
@@ -183,7 +183,9 @@ Code make_ldint(int i)
     Code code;
 
     code = makecode(T_LDINT);
-    code.head->args[0].ival = i;
+    Value v;
+    v.ival = i;
+    code.head->args[0] = v;
     return code;
 }
 
@@ -192,7 +194,9 @@ Code make_ldstr(char *s)
     Code code;
 
     code = makecode(T_LDSTR);
-    code.head->args[0].sval = s;
+    Value v;
+    v.sval = s;
+    code.head->args[0] = v;
     return code;
 }
 
@@ -201,7 +205,9 @@ Code make_sattr(char *s)
     Code code;
 
     code = makecode(T_SATTR);
-    code.head->args[0].sval = s;
+    Value v;
+    v.sval = s;
+    code.head->args[0] = v;
     return code;
 }
 
@@ -209,8 +215,10 @@ Code make_get_fget(Operator op, int oid, char *format)
 {
     Code code;
 
-    code = makecode1(op, oid);
-    code.head->args[1].sval = format;
+    Value v1; v1.ival = oid;
+    Value v2; v2.sval = format;
+    code = makecode1(op, v1);
+    code.head->args[1] = v2;
     return code;
 }
 
@@ -219,6 +227,8 @@ Code make_print_fprint(Operator op, char *format)
     Code code;
 
     code = makecode(op);
-    code.head->args[0].sval = format;
+    Value v;
+    v.sval = format;
+    code.head->args[0] = v;
     return code;
 }

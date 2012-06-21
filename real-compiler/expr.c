@@ -120,8 +120,8 @@ Code expr(Pnode root, Pschema pschema)
                 /* Variabile */
                 // Assegno il tipo
                 *pschema = symbol->schema;
-
-                return makecode1(T_LOB, symbol->oid);
+                Value v; v.ival = symbol->oid;
+                return makecode1(T_LOB, v);
             }
             else {
                 // Proviamo a vedere se e' un attributo
@@ -130,7 +130,10 @@ Code expr(Pnode root, Pschema pschema)
                 {
                     pschema->name = valname(root);
                     pschema->type = tmp->type;
-                    return makecode3(T_LAT, offset, context, get_size(tmp));
+                    Value v1; v1.ival = offset;
+                    Value v2; v2.ival = context;
+                    Value v3; v3.ival = get_size(tmp);
+                    return makecode3(T_LAT, v1, v2, v3);
                 }
                 else semerror(root, "Undefined identifier");
             }
@@ -174,23 +177,33 @@ Code expr(Pnode root, Pschema pschema)
             switch (qualifier(root))
             {
                 case AND:
+                {
+                    Value v1; v1.ival = code2.size + 2;
+                    Value v2; v2.ival = 2;
+                    Value v3; v3.ival = 0;
                     return concode(
                         code1,
-                        makecode1(T_SKIPF, code2.size + 2),
+                        makecode1(T_SKIPF, v1),
                         code2,
-                        makecode1(T_SKIP, 2),
-                        makecode1(T_LDINT, 0),
+                        makecode1(T_SKIP, v2),
+                        makecode1(T_LDINT, v3),
                         endcode()
                         );
+                }
                 case OR:
+                {
+                    Value v1; v1.ival = 3;
+                    Value v2; v2.ival = 1;
+                    Value v3; v3.ival = code2.size + 1;
                     return concode(
                         code1,
-                        makecode1(T_SKIPF, 3),
-                        makecode1(T_LDINT, 1),
-                        makecode1(T_SKIP, code2.size + 1),
+                        makecode1(T_SKIPF, v1),
+                        makecode1(T_LDINT, v2),
+                        makecode1(T_SKIP, v3),
                         code2,
                         endcode()
                         );
+                }
                 default: noderror(root);
             }
         case N_COMP_EXPR:
@@ -314,8 +327,9 @@ Code expr(Pnode root, Pschema pschema)
                 }
             }
 
+            Value v1; v1.ival = num_id;
             return concode(code1,
-                           makecode1(T_PROJ, num_id),
+                           makecode1(T_PROJ, v1),
                            attr_code(root->child->brother, &schema1),
                            makecode(T_ENDPROJ),
                            makecode(T_REMDUP),
@@ -363,6 +377,7 @@ Code expr(Pnode root, Pschema pschema)
             return code1;
         }
         case N_SELECT_EXPR:
+        {
             code2 = expr(root->child->brother, &schema2);
             push_context(schema2.next);
             code1 = expr(root->child, &schema1);
@@ -393,14 +408,17 @@ Code expr(Pnode root, Pschema pschema)
                 default: noderror(root);
             }
 
+            Value v1; v1.ival = code1.size;
             return concode(
                 code2,
-                makecode1(op, code1.size),
+                makecode1(op, v1),
                 code1,
-                makecode1(op2, code1.size),
+                makecode1(op2, v1),
                 endcode()
                 );
+        }
         case N_JOIN_EXPR:
+        {
             code1 = expr(root->child, &schema1);
             code3 = expr(root->child->brother->brother, &schema3);
 
@@ -429,14 +447,16 @@ Code expr(Pnode root, Pschema pschema)
             if (schema2.type != BOOLEAN)
                 semerror(root, "Join requires boolean predicate");
 
+            Value v1; v1.ival = code2.size;
             return concode(
                 code1,
                 code3,
-                makecode1(T_JOIN, code2.size),
+                makecode1(T_JOIN, v1),
                 code2,
-                makecode1(T_ENDJOIN, code2.size),
+                makecode1(T_ENDJOIN, v1),
                 endcode()
                 );
+        }
         case N_UPDATE_EXPR:
         {
             code1 = expr(root->child, &schema1);
@@ -458,11 +478,14 @@ Code expr(Pnode root, Pschema pschema)
             pschema->type = TABLE;
             pschema->next = clone_schema(schema1.next);
 
+            Value v1; v1.ival = get_attribute_offset(schema1.next, attr->name);
+            Value v2; v2.ival = get_size(attr);
+            Value v3; v3.ival = code2.size;
             return concode(
                 code1,
-                makecode3(T_UPD, get_attribute_offset(schema1.next, attr->name), get_size(attr), code2.size),
+                makecode3(T_UPD, v1, v2, v3),
                 code2,
-                makecode1(T_ENDUPD, code2.size),
+                makecode1(T_ENDUPD, v3),
                 makecode(T_REMDUP),
                 endcode()
                 );
@@ -495,10 +518,9 @@ Code attr_code(Pnode p, Pschema schema)
     // Utilizzata all'interno di Project
     for (;p != NULL; p = p->brother)
     {
-        Code tmpcode = makecode2(T_ATTR,
-                                 get_attribute_offset(schema->next, valname(p)),
-                                 get_size(name_in_schema(valname(p), schema))
-                                 );
+        Value v1; v1.ival = get_attribute_offset(schema->next, valname(p));
+        Value v2; v2.ival = get_size(name_in_schema(valname(p), schema));
+        Code tmpcode = makecode2(T_ATTR, v1, v2);
         if (retcode.head == NULL)
             retcode = tmpcode;
         else

@@ -21,7 +21,8 @@ Code program(Pnode root)
 {
   Code body = stat_list(root->child);
   
-  return concode(makecode1(T_TCODE, body.size + 2),
+  Value v1; v1.ival = body.size + 2;
+  return concode(makecode1(T_TCODE, v1),
          body,
          makecode(T_HALT),
          endcode());
@@ -46,7 +47,10 @@ Code stat_list(Pnode p)
 
     // Tolgo le variabili dichiarate in questo environment:
     if ((env_num_vars = numobj_in_current_env()) > 0)
-        s = appcode(s, makecode1(T_POP, env_num_vars));
+    {
+        Value v1; v1.ival = env_num_vars;
+        s = appcode(s, makecode1(T_POP, v1));
+    }
     pop_environment();
     return s;
 }
@@ -104,9 +108,11 @@ Code def_stat(Pnode p)
         schema.name = names->name;
         insert(schema);
 
-        c_temp = makecode1(op, get_size(&schema));
+        Value v1; v1.ival = get_size(&schema);
+        c_temp = makecode1(op, v1);
         code_ret = (code_ret.head == NULL ? c_temp : appcode(code_ret, c_temp));
     }
+
     return code_ret;
 }
 
@@ -148,9 +154,10 @@ Code assign_stat(Pnode p)
     if (!type_equal(symbol->schema, *exprschema))
         semerror(p->child->brother, "Incompatible types in assignment");
 
+    Value v1; v1.ival = symbol->oid;
     return concode(
         exprcode,
-        makecode1(T_STO, symbol->oid),
+        makecode1(T_STO, v1),
         endcode());
 }
 
@@ -171,19 +178,24 @@ Code if_stat(Pnode p)
         semerror(p->child, "Boolean expression required");
 
     if (p->child->brother->brother == NULL)
+    {
         // IF-THEN
+        Value v1; v1.ival = bodythen.size + 1;
         return concode(exprcode,
-                       makecode1(T_SKIPF, bodythen.size + 1),
+                       makecode1(T_SKIPF, v1),
                        bodythen,
                        endcode());
+    }
     else
     {
         // IF-THEN-ELSE
         Code bodyelse = stat_list(p->child->brother->brother);
+        Value v1; v1.ival = bodythen.size + 2;
+        Value v2; v2.ival = bodyelse.size + 1;
         return concode(exprcode,
-                       makecode1(T_SKIPF, bodythen.size + 2),
+                       makecode1(T_SKIPF, v1),
                        bodythen,
-                       makecode1(T_SKIP, bodyelse.size + 1),
+                       makecode1(T_SKIP, v2),
                        bodyelse,
                        endcode()
             );
@@ -249,10 +261,12 @@ Code while_stat(Pnode p)
     if (exprschema.type != BOOLEAN)
         semerror(p->child, "Boolean expression required");
 
+    Value v1; v1.ival = body.size + 2;
+    Value v2; v2.ival = -(exprcode.size + body.size + 1);
     return concode(exprcode,
-                   makecode1(T_SKIPF, body.size + 2),
+                   makecode1(T_SKIPF, v1),
                    body,
-                   makecode1(T_SKIP, -(exprcode.size + body.size + 1)),
+                   makecode1(T_SKIP, v2),
                    endcode());
 }
 
