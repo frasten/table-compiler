@@ -228,10 +228,8 @@ Code stat(Pnode p)
         case N_WHILE_STAT:
             return while_stat(p);
         case N_READ_STAT:
-            printf("READ_STAT\n");
             return read_stat(p);
         case N_WRITE_STAT:
-            printf("WRITE_STAT\n");
             return write_stat(p);
         default:
             noderror(p);

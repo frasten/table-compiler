@@ -1,5 +1,8 @@
 program
 integer i;
-table(integer a, string b) t, w;
-w = update [ a = i + 8 ] t
+string s;
+table(integer a, string b) t;
+write i + 25;
+write [ s ] select [ a >= i ] t;
+write {(1, "alpha"), (2, "beta")}
 end
