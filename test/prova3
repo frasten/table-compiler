@@ -2,5 +2,5 @@ program
 integer i;
 table(integer a, string b) t;
 table(integer a, string b, integer c) w;
-w = extend [ integer c = a - i] t
+w = extend [ integer c = true] t
 end

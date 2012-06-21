@@ -560,22 +560,23 @@ Code expr(Pnode root, Pschema pschema)
             Pschema newattr, schema_tipo;
 
             code1 = expr(root->child, &schema1);
-            push_context(schema1.next); // TODO: dove?
+
+            // Vincoli semantici
+            if (schema1.type != TABLE)
+                semerror(root->child, "Extend requires table operand");
+
+            push_context(schema1.next);
             code2 = expr(root->child->brother->brother->brother, &schema2);
             pop_context();
 
             schema_tipo = atomic_type(root->child->brother);
 
-            // Vincoli semantici
-            if (schema1.type != TABLE)
-                semerror(root->child, "ASDF");
-
             attrname = valname(root->child->brother->brother);
             if (name_in_schema(attrname, schema1.next))
-                semerror(root->child->brother->brother, "ASDF");
+                semerror(root->child->brother->brother, "Attribute name in extend must be new");
 
             if (!type_equal(*schema_tipo, schema2))
-                semerror(root->child->brother, "ASDF");
+                semerror(root->child->brother, "Attribute type and expression type must be equal in extend");
 
 
             // Unione tra gli schemi
