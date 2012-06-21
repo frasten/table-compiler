@@ -20,6 +20,8 @@ void syserror(char *message)
 void noderror(Pnode p)
 {
     printf("Inconsistent node (%d) in parse tree\n", p->type);
+    printf("Node:\n");
+    treeprint(p, 0);
     exit(-1);
 }
 
