@@ -48,18 +48,18 @@ Boolean duplicated(char* name, Pschema schema)
     return FALSE;
 }
 
+// Controlla se i due schemi in ingresso hanno nomi di attributo in comune
 Boolean homonyms(Pschema schema1, Pschema schema2)
 {
-    // TODO: non so se va implementata cosi', dipende se l'ordine conta negli schemi.
-    while (schema1 != NULL && schema2 != NULL)
+    for (Pschema ptr1 = schema1; ptr1 != NULL; ptr1 = ptr1->next)
     {
-        if (schema1->name != schema2->name)
-            return FALSE;
-        // TODO: non e' che vado a toccare gli oggetti passati in input? teoricamente no.
-        schema1 = schema1->next;
-        schema2 = schema2->next;
+        for (Pschema ptr2 = schema2; ptr2 != NULL; ptr2 = ptr2->next)
+        {
+            if (ptr1->name == ptr2->name)
+                return TRUE;
+        }
     }
-    return TRUE;
+    return FALSE;
 }
 
 Pschema clone_schema(Pschema pschema)
@@ -104,8 +104,8 @@ Pname add_name_to_list(char* name, Pname list)
 
 Code expr(Pnode root, Pschema pschema)
 {
-    Code code1, code2;
-    Schema schema1, schema2;
+    Code code1, code2, code3;
+    Schema schema1, schema2, schema3;
     int op, op2, offset, context;
     Psymbol symbol;
 
@@ -365,7 +365,7 @@ Code expr(Pnode root, Pschema pschema)
         case N_SELECT_EXPR:
             code2 = expr(root->child->brother, &schema2);
             push_context(schema2.next);
-            code1 = expr(root->child, &schema1);            
+            code1 = expr(root->child, &schema1);
             pop_context();
 
             if (schema1.type != BOOLEAN)
@@ -398,6 +398,43 @@ Code expr(Pnode root, Pschema pschema)
                 makecode1(op, code1.size),
                 code1,
                 makecode1(op2, code1.size),
+                endcode()
+                );
+        case N_JOIN_EXPR:
+            code1 = expr(root->child, &schema1);
+            code3 = expr(root->child->brother->brother, &schema3);
+
+            // Vincoli semantici
+            if (schema1.type != TABLE || schema3.type != TABLE)
+                semerror(root, "Join requires table operands");
+
+            // Controlliamo gli attributi in comune
+            if (homonyms(schema1.next, schema3.next))
+                semerror(root, "Common attribute names in join operands");
+
+            // Creiamo lo Schema di uscita
+            Pschema leftschema = clone_schema(schema1.next);
+            Pschema rightschema = clone_schema(schema3.next);
+            // TODO: svuotare questa memoria dopo la prossima istruzione
+            // .... O NO!?!?
+
+            pschema->type = TABLE;
+            pschema->next = append_schemas(leftschema, rightschema);
+
+            // Andiamo a valutare l'espressione di condizione nello schema unione.
+            push_context(pschema->next);
+            code2 = expr(root->child->brother, &schema2);
+            pop_context();
+
+            if (schema2.type != BOOLEAN)
+                semerror(root, "Join requires boolean predicate");
+
+            return concode(
+                code1,
+                code3,
+                makecode1(T_JOIN, code2.size),
+                code2,
+                makecode1(T_ENDJOIN, code2.size),
                 endcode()
                 );
         default: noderror(root);
