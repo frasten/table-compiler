@@ -1,8 +1,6 @@
 program
-boolean k;
-string s;
+integer i;
 table(integer a, string b) t;
-read k;
-read t;
-read [ s ] t
+table(integer a, string b, integer c) w;
+w = extend [ integer c = a - i] t
 end

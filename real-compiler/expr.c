@@ -526,7 +526,7 @@ Code expr(Pnode root, Pschema pschema)
             code1 = expr(root->child, &schema1);
             push_context(schema1.next);
             code2 = expr(root->child->brother->brother, &schema2);
-            pop_context(); // TODO: qui o su?
+            pop_context();
 
             // Vincoli semantici
             if (schema1.type != TABLE)
@@ -551,6 +551,46 @@ Code expr(Pnode root, Pschema pschema)
                 code2,
                 makecode1(T_ENDUPD, v3),
                 makecode(T_REMDUP),
+                endcode()
+                );
+        }
+        case N_EXTEND_EXPR:
+        {
+            char *attrname;
+            Pschema newattr, schema_tipo;
+
+            code1 = expr(root->child, &schema1);
+            push_context(schema1.next); // TODO: dove?
+            code2 = expr(root->child->brother->brother->brother, &schema2);
+            pop_context();
+
+            schema_tipo = atomic_type(root->child->brother);
+
+            // Vincoli semantici
+            if (schema1.type != TABLE)
+                semerror(root->child, "ASDF");
+
+            attrname = valname(root->child->brother->brother);
+            if (name_in_schema(attrname, schema1.next))
+                semerror(root->child->brother->brother, "ASDF");
+
+            if (!type_equal(*schema_tipo, schema2))
+                semerror(root->child->brother, "ASDF");
+
+
+            // Unione tra gli schemi
+            newattr = schemanode(attrname, schema_tipo->type);
+
+            pschema->type = TABLE;
+            pschema->next = append_schemas(clone_schema(schema1.next), newattr);
+
+            Value v1; v1.ival = get_size(newattr);
+            Value v2; v2.ival = code2.size;
+            return concode(
+                code1,
+                makecode2(T_EXT, v1, v2),
+                code2,
+                makecode1(T_ENDEXT, v2),
                 endcode()
                 );
         }
