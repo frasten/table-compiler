@@ -1,7 +1,8 @@
 program
-table (integer i, string s, boolean b) t;
-t = {integer, string, boolean};
-t = {(1, "alpha", true),
-(2, "beta", false),
-(3, "gamma", true)}
+boolean k;
+string s;
+table(integer a, string b) t;
+read k;
+read t;
+read [ s ] t
 end

@@ -204,8 +204,33 @@ Code if_stat(Pnode p)
 
 Code read_stat(Pnode p)
 {
-    // TODO
-    return endcode();
+    Code result, specifiercode;
+    int op;
+
+    // Vincoli semantici
+    Psymbol symbol = lookup(valname(p->child->brother));
+    if (symbol == NULL)
+        semerror(p->child, "Unknown identifier");
+
+    if (p->child->child != NULL)
+    {
+        // Con specifier
+        op = T_FGET;
+        specifiercode = specifier(p->child);
+    }
+    else
+    {
+        op = T_GET;
+    }
+
+    Value v1; v1.ival = symbol->oid;
+    Value v2; v2.sval = get_format(symbol->schema);
+    result = makecode2(op, v1, v2);
+
+    if (op == T_GET)
+        return result;
+    else
+        return appcode(specifiercode, result);
 }
 
 Code specifier(Pnode p)
