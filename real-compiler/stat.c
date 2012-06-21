@@ -272,6 +272,40 @@ Code while_stat(Pnode p)
 
 Code write_stat(Pnode p)
 {
-    // TODO
-    return endcode();
+    /*
+         WRITE_STAT
+            /
+           /
+        N_SPECIFIER --> expr
+             /
+            /
+        [expr-filename]
+     */
+    Value format;
+    int op;
+    Schema exprschema, specifierschema;
+    Code exprcode, specifiercode;
+
+    exprcode = expr(p->child->brother, &exprschema);
+    if (p->child->child != NULL)
+    {
+        // Con specifier
+        specifiercode = expr(p->child->child, &specifierschema);
+        // Vincoli semantici
+        if (specifierschema.type != STRING)
+            semerror(p->child->child, "String type required for specifier");
+        exprcode = appcode(exprcode, specifiercode);
+        op = T_FPRINT;
+    }
+    else
+    {
+        // Senza specifier
+        op = T_PRINT;
+    }
+    format.sval = get_format(exprschema);
+    return concode(
+        exprcode,
+        makecode1(op, format),
+        endcode()
+        );
 }
