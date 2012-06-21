@@ -51,9 +51,10 @@ Boolean duplicated(char* name, Pschema schema)
 // Controlla se i due schemi in ingresso hanno nomi di attributo in comune
 Boolean homonyms(Pschema schema1, Pschema schema2)
 {
-    for (Pschema ptr1 = schema1; ptr1 != NULL; ptr1 = ptr1->next)
+    Pschema ptr1, ptr2;
+    for (ptr1 = schema1; ptr1 != NULL; ptr1 = ptr1->next)
     {
-        for (Pschema ptr2 = schema2; ptr2 != NULL; ptr2 = ptr2->next)
+        for (ptr2 = schema2; ptr2 != NULL; ptr2 = ptr2->next)
         {
             if (ptr1->name == ptr2->name)
                 return TRUE;
@@ -291,7 +292,8 @@ Code expr(Pnode root, Pschema pschema)
 
                 // Ciclo dei figli
                 tuples_code = endcode();
-                for (Pnode tup = root->child; tup != NULL; tup = tup->brother)
+                Pnode tup;
+                for (tup = root->child; tup != NULL; tup = tup->brother)
                 {
                     Code singlecode = tuple_const(tup, tuple_schema);
                     if (tuples_code.head == NULL) // TODO: Memory leak
@@ -368,7 +370,8 @@ Code expr(Pnode root, Pschema pschema)
             // e in quell'ordine.
             pschema->type = TABLE;
             Pschema filtered = NULL, attr, attr_copy;
-            for (Pname n = names; n != NULL; n = n->next)
+            Pname n;
+            for (n = names; n != NULL; n = n->next)
             {
                 attr = name_in_schema(n->name, schema1.next);
                 if (attr == NULL)
@@ -416,7 +419,8 @@ Code expr(Pnode root, Pschema pschema)
 
             // Conto il numero di attributi attuali della tabella
             int old_num = 0;
-            for (Pschema s = schema1.next; s != NULL; s = s->next)
+            Pschema s;
+            for (s = schema1.next; s != NULL; s = s->next)
             {
                 old_num++;
             }
@@ -426,7 +430,8 @@ Code expr(Pnode root, Pschema pschema)
             // Rinomino le variabili nello schema
             pschema->next = clone_schema(schema1.next);
             Pschema schemaptr = pschema->next;
-            for (Pname n = names; n != NULL; n = n->next)
+            Pname n;
+            for (n = names; n != NULL; n = n->next)
             {
                 schemaptr->name = n->name;
 
@@ -561,6 +566,8 @@ Schema type(Pnode p)
     else if (p->type == N_TABLE_TYPE)
         return *table_type(p);
     else noderror(p);
+
+    return *schemanode(NULL, 0); // Solo per eliminare il warning del compilatore
 }
 
 Pschema atomic_type(Pnode p)
@@ -591,7 +598,8 @@ Code attr_code(Pnode p, Pschema schema)
 Pschema tuple_to_schema(Pnode p)
 {
     Pschema tmp, result = NULL;
-    for (Pnode attr = p->child; attr != NULL; attr = attr->brother)
+    Pnode attr;
+    for (attr = p->child; attr != NULL; attr = attr->brother)
     {
         Pschema nuovo = (Pschema) newmem(sizeof(Schema));
         if (attr->type == N_ATOMIC_TYPE)

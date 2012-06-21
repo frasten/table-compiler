@@ -91,7 +91,8 @@ Code def_stat(Pnode p)
         semerror(p, "Variable redeclaration");
 
     // Controlliamo che nessuna variabile sia nell'environment
-    for (Pname n = names; n != NULL; n = n->next)
+    Pname n;
+    for (n = names; n != NULL; n = n->next)
     {
         if (name_in_environment(n->name))
             semerror(p, "Variable redeclaration");
@@ -271,7 +272,8 @@ Code tuple_const(Pnode p, Pschema s)
     // Scorro tutti gli elementi della tupla
 
     Code result = endcode();
-    for (Pnode elem = p->child; elem != NULL; elem = elem->brother)
+    Pnode elem;
+    for (elem = p->child; elem != NULL; elem = elem->brother)
     {
         Code elemcode;
         switch (elem->type)
