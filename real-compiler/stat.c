@@ -210,8 +210,12 @@ Code read_stat(Pnode p)
 
 Code specifier(Pnode p)
 {
-    // TODO
-    return endcode();
+    Schema schema;
+    Code code = expr(p->child, &schema);
+    // Vincoli semantici
+    if (schema.type != STRING)
+        semerror(p->child, "String type required for specifier");
+    return code;
 }
 
 Code stat(Pnode p)
@@ -281,18 +285,13 @@ Code write_stat(Pnode p)
      */
     Value format;
     int op;
-    Schema exprschema, specifierschema;
-    Code exprcode, specifiercode;
+    Schema exprschema;
+    Code code = expr(p->child->brother, &exprschema);
 
-    exprcode = expr(p->child->brother, &exprschema);
     if (p->child->child != NULL)
     {
         // Con specifier
-        specifiercode = expr(p->child->child, &specifierschema);
-        // Vincoli semantici
-        if (specifierschema.type != STRING)
-            semerror(p->child->child, "String type required for specifier");
-        exprcode = appcode(exprcode, specifiercode);
+        code = appcode(code, specifier(p->child));
         op = T_FPRINT;
     }
     else
@@ -302,7 +301,7 @@ Code write_stat(Pnode p)
     }
     format.sval = get_format(exprschema);
     return concode(
-        exprcode,
+        code,
         makecode1(op, format),
         endcode()
         );
