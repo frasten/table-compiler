@@ -12,6 +12,10 @@ A.A. 2011/2012
 
 File contents:
 
+test/
+	File di esempio scritti in linguaggio Table. Potrebbero non essere
+	aggiornati con le ultime specifiche di Table.
+
 parser-top-down/
 	Parser a discesa ricorsiva per il linguaggio Table.
 	Basato su Lex.
