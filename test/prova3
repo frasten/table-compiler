@@ -1,17 +1,10 @@
 program
-	integer min, max, i;
-	string s;
-	table(integer a, string b) R;
-	if min == max then
-		table(string c, boolean d) T;
-		read T;
-		write
-		R join [ b == c ] T
-	else
-		while(min != max) do
-			integer i, j, s;
-			min = i + j - max;
-			boolean ok
-		end
-	end
+integer n, fact;
+read n;
+fact = 1;
+while n > 1 do
+fact = fact * n;
+n = n - 1
+end;
+write fact
 end

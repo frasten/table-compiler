@@ -251,7 +251,6 @@ Code specifier(Pnode p)
 
 Code stat(Pnode p)
 {
-    // TODO
     switch (p->type)
     {
         case N_DEF_STAT:

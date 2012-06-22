@@ -39,7 +39,6 @@ Boolean repeated_names(Pname n)
 
 Boolean duplicated(char* name, Pschema schema)
 {
-    // TODO: non so se va implementata cosi', dipende a cosa serve.
     while (schema != NULL) {
         if (schema->name == name)
             return TRUE;
@@ -140,12 +139,10 @@ Code expr(Pnode root, Pschema pschema)
     int op, op2, offset, context;
     Psymbol symbol;
 
-    // TODO
-    // 
     pschema->name = NULL;
     pschema->next = NULL;
     switch(root->type) {
-        case N_ID : // TODO
+        case N_ID :
             if ((symbol = lookup(valname(root))) != NULL)
             {
                 /* Variabile */
@@ -326,7 +323,7 @@ Code expr(Pnode root, Pschema pschema)
                 for (tup = root->child; tup != NULL; tup = tup->brother)
                 {
                     Code singlecode = tuple_const(tup, tuple_schema);
-                    if (tuples_code.head == NULL) // TODO: Memory leak
+                    if (tuples_code.head == NULL)
                         tuples_code = singlecode;
                     else
                         tuples_code = appcode(tuples_code, singlecode);
@@ -527,8 +524,6 @@ Code expr(Pnode root, Pschema pschema)
             // Creiamo lo Schema di uscita
             Pschema leftschema = clone_schema(schema1.next);
             Pschema rightschema = clone_schema(schema3.next);
-            // TODO: svuotare questa memoria dopo la prossima istruzione
-            // .... O NO!?!?
 
             pschema->type = TABLE;
             pschema->next = append_schemas(leftschema, rightschema);
@@ -663,7 +658,7 @@ Pschema atomic_type(Pnode p)
 
 Code attr_code(Pnode p, Pschema schema)
 {
-    Code retcode = endcode(); // TODO: Memory leak?
+    Code retcode = endcode();
     // Utilizzata all'interno di Project
     for (;p != NULL; p = p->brother)
     {
