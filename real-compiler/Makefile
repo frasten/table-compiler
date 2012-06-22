@@ -1,7 +1,7 @@
 WFLAGS=-Wall -Wextra
 CFLAGS=-g $(WFLAGS)
 
-GCC=$(shell which clang)
+GCC=$(shell which gcc)
 
 SOURCES=$(shell ls *.c)
 OBJECTS=$(SOURCES:.c=.o)

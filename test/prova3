@@ -1,6 +1,17 @@
 program
-integer i;
-table(integer a, string b) t;
-table(integer a, string b, integer c) w;
-w = extend [ integer c = true] t
+	integer min, max, i;
+	string s;
+	table(integer a, string b) R;
+	if min == max then
+		table(string c, boolean d) T;
+		read T;
+		write
+		R join [ b == c ] T
+	else
+		while(min != max) do
+			integer i, j, s;
+			min = i + j - max;
+			boolean ok
+		end
+	end
 end

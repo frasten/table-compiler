@@ -94,12 +94,30 @@ Pschema append_schemas(Pschema psch1, Pschema psch2)
 
 Pname add_name_to_list(char* name, Pname list)
 {
+    Pname head = list;
     Pname new_element = (Pname) newmem(sizeof(Name));
     new_element->name = name;
-    new_element->next = list;
+    new_element->next = NULL;
 
-    list = new_element;
-    return list;
+    if (list == NULL)
+        return new_element;
+    while (list->next)
+        list = list->next;
+    list->next = new_element;
+
+    return head;
+}
+
+
+void free_name_list(Pname list)
+{
+    Pname nextptr;
+    while (list)
+    {
+        nextptr = list->next;
+        freemem(list, sizeof(Name));
+        list = nextptr;
+    }
 }
 
 
@@ -602,10 +620,22 @@ Code expr(Pnode root, Pschema pschema)
 
 Schema type(Pnode p)
 {
+    Pschema presult;
+    Schema result;
     if (p->type == N_ATOMIC_TYPE)
-        return *atomic_type(p);
+    {
+        presult = atomic_type(p);
+        result = *presult;
+        freemem(presult, sizeof(Schema));
+        return result;
+    }
     else if (p->type == N_TABLE_TYPE)
-        return *table_type(p);
+    {
+        presult = table_type(p);
+        result = *presult;
+        freemem(presult, sizeof(Schema));
+        return result;
+    }
     else noderror(p);
 
     return *schemanode(NULL, 0); // Solo per eliminare il warning del compilatore
@@ -711,6 +741,8 @@ Pschema table_type(Pnode p)
     // Controllo semantico di attributi duplicati
     if (repeated_names(attr_name_list))
         semerror(p, "Duplicate attribute name");
+
+    free_name_list(attr_name_list);
 
     return tableschema;
 }

@@ -313,7 +313,8 @@ void codeprint(Code, int),
      semerror(Pnode, char*),
      symprint(),
      syserror(char*),
-     treeprint(Pnode, int);
+     treeprint(Pnode, int),
+     free_name_list(Pname);
 
 int qualifier(Pnode),
     get_size(Pschema),

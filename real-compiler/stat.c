@@ -102,17 +102,20 @@ Code def_stat(Pnode p)
 
     // Genero il codice per allocare ognuna delle variabili
     code_ret.head = NULL;
-    for (; names != NULL; names = names->next)
+    for (n = names; n != NULL; n = n->next)
     {
         // Aggiungo il nome alla Symbol Table
         schema = type(nodo_type);
-        schema.name = names->name;
+        schema.name = n->name;
         insert(schema);
 
         Value v1; v1.ival = get_size(&schema);
         c_temp = makecode1(op, v1);
         code_ret = (code_ret.head == NULL ? c_temp : appcode(code_ret, c_temp));
     }
+
+    // Liberiamo la memoria
+    free_name_list(names);
 
     return code_ret;
 }
