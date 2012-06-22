@@ -13,6 +13,8 @@ int main(int argc, char *argv[])
     yyparse();
     code = program(root);
     codeprint(code, 0);
+
+    free_code(&code);
     return 0;
 }
 

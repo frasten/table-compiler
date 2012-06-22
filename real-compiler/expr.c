@@ -121,6 +121,18 @@ void free_name_list(Pname list)
 }
 
 
+void free_schema(Pschema schema)
+{
+    Pschema nextptr;
+    while (schema)
+    {
+        nextptr = schema->next;
+        freemem(schema, sizeof(Schema));
+        schema = nextptr;
+    }
+}
+
+
 Code expr(Pnode root, Pschema pschema)
 {
     Code code1, code2, code3;

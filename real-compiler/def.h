@@ -314,7 +314,9 @@ void codeprint(Code, int),
      symprint(),
      syserror(char*),
      treeprint(Pnode, int),
-     free_name_list(Pname);
+     free_name_list(Pname),
+     free_schema(Pschema),
+     free_code(Code*);
 
 int qualifier(Pnode),
     get_size(Pschema),

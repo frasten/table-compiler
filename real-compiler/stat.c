@@ -158,6 +158,8 @@ Code assign_stat(Pnode p)
     if (!type_equal(symbol->schema, *exprschema))
         semerror(p->child->brother, "Incompatible types in assignment");
 
+    free_schema(exprschema);
+
     Value v1; v1.ival = symbol->oid;
     return concode(
         exprcode,

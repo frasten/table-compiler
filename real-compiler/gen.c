@@ -131,6 +131,28 @@ Code concode(Code code1, Code code2, ...)
     return rescode;
 }
 
+void free_code(Code* code)
+{
+    int i;
+    Tstat* pstat = code->head;
+    while (pstat)
+    {
+        Tstat* pstat_next = pstat->next;
+        // Controllo se gli arg erano un puntatore a char.
+        for (i = 0; i < MAXARGS; i++)
+        {
+            Opdescr *pdescr = get_descr(pstat->op);
+            char tipo = pdescr->format[i];
+            if (tipo == '\0') break;
+
+            if (tipo == 's')
+                freemem(pstat->args[i].sval, sizeof(char*));
+        }
+        freemem(pstat, sizeof(Tstat));
+        pstat = pstat_next;
+    }
+}
+
 Tstat *newstat(Operator op)
 {
     Tstat *pstat;
