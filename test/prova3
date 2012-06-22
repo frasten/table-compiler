@@ -1,10 +1,5 @@
 program
-integer n, fact;
-read n;
-fact = 1;
-while n > 1 do
-fact = fact * n;
-n = n - 1
-end;
-write fact
+table(integer a, string x) A;
+table(integer b, boolean y) B, C;
+C = select [ exists [ a > b ] A ] B
 end
