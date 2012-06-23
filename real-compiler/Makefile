@@ -23,9 +23,11 @@ $(EXECUTABLE): parser.o lexer.o $(OBJECTS)
 	$(P)LD
 	$(Q)$(GCC) $(LIBS) $(CFLAGS) -o $@ ${OBJECTS}
 
-%.o:: %.c
+%.o:: %.c parser.h
 	$(P)CC
 	$(Q)$(GCC) $(CFLAGS) -c -o $@ $<
+
+parser.h: parser.c
 
 parser.c: parser.y lexer.c
 	$(P)BS
