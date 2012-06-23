@@ -680,6 +680,7 @@ Pschema tuple_to_schema(Pnode p)
     for (attr = p->child; attr != NULL; attr = attr->brother)
     {
         Pschema nuovo = (Pschema) newmem(sizeof(Schema));
+        nuovo->next = NULL;
         if (attr->type == N_ATOMIC_TYPE)
         {
             // Per tuple di tipi
