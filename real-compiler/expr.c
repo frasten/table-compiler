@@ -143,7 +143,19 @@ Code expr(Pnode root, Pschema pschema)
     pschema->next = NULL;
     switch(root->type) {
         case N_ID :
-            if ((symbol = lookup(valname(root))) != NULL)
+        {
+            Pschema tmp;
+            if ((tmp = name_in_constack(valname(root), &offset, &context)) != NULL)
+            {
+                // Proviamo a vedere se e' un attributo
+                pschema->name = valname(root);
+                pschema->type = tmp->type;
+                Value v1; v1.ival = offset;
+                Value v2; v2.ival = context;
+                Value v3; v3.ival = get_size(tmp);
+                return makecode3(T_LAT, v1, v2, v3);
+            }
+            else if ((symbol = lookup(valname(root))) != NULL)
             {
                 /* Variabile */
                 // Assegno il tipo
@@ -151,21 +163,9 @@ Code expr(Pnode root, Pschema pschema)
                 Value v; v.ival = symbol->oid;
                 return makecode1(T_LOB, v);
             }
-            else {
-                // Proviamo a vedere se e' un attributo
-                Pschema tmp = name_in_constack(valname(root), &offset, &context);
-                if (tmp != NULL)
-                {
-                    pschema->name = valname(root);
-                    pschema->type = tmp->type;
-                    Value v1; v1.ival = offset;
-                    Value v2; v2.ival = context;
-                    Value v3; v3.ival = get_size(tmp);
-                    return makecode3(T_LAT, v1, v2, v3);
-                }
-                else semerror(root, "Undefined identifier");
-            }
-            break;
+            else
+                semerror(root, "Undefined identifier");
+        }
         case N_MATH_EXPR:
             /*
                     '+'
