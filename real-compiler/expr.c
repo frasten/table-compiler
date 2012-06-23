@@ -370,7 +370,6 @@ Code expr(Pnode root, Pschema pschema)
                         semerror(root->child, "Unary minus requires integer type");
                     pschema->type = INTEGER;
                     return appcode(code1, makecode(T_UMI));
-                    break;
                 default: noderror(root);
             }
         case N_PROJECT_EXPR:
