@@ -415,6 +415,7 @@ Code expr(Pnode root, Pschema pschema)
                     filtered = filtered->next;
                 }
             }
+            free_name_list(names);
 
             Value v1; v1.ival = num_id;
             return concode(code1,
@@ -465,6 +466,7 @@ Code expr(Pnode root, Pschema pschema)
                 schemaptr = schemaptr->next;
             }
 
+            free_name_list(names);
             return code1;
         }
         case N_SELECT_EXPR:
@@ -688,9 +690,19 @@ Pschema tuple_to_schema(Pnode p)
         }
         else
         {
-            Schema tipo;
-            expr(attr, &tipo);
-            nuovo->type = tipo.type;
+            switch (attr->type)
+            {
+                case N_INTCONST:
+                    nuovo->type = INTEGER;
+                    break;
+                case N_STRCONST:
+                    nuovo->type = STRING;
+                    break;
+                case N_BOOLCONST:
+                    nuovo->type = BOOLEAN;
+                    break;
+                default: noderror(attr);
+            }
         }
         if (result == NULL)
             result = tmp = nuovo;

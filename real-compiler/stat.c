@@ -273,8 +273,8 @@ Code stat(Pnode p)
 
 Code tuple_const(Pnode p, Pschema s)
 {
+    Pschema schema;
     // Scorro tutti gli elementi della tupla
-
     Code result = endcode();
     Pnode elem;
     for (elem = p->child; elem != NULL; elem = elem->brother)
@@ -296,8 +296,11 @@ Code tuple_const(Pnode p, Pschema s)
     }
 
     // Type checking
-    if (!type_equal(*tuple_to_schema(p), *s))
+    schema = tuple_to_schema(p);
+    if (!type_equal(*schema, *s))
         semerror(p, "Incompatible tuples in table constant");
+    free_schema(schema);
+
     return result;
 }
 
