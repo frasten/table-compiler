@@ -608,6 +608,7 @@ Code expr(Pnode root, Pschema pschema)
 
             // Unione tra gli schemi
             newattr = schemanode(attrname, schema_tipo->type);
+            free_schema(schema_tipo);
 
             pschema->type = TABLE;
             pschema->next = append_schemas(clone_schema(schema1.next), newattr);
@@ -683,6 +684,7 @@ Pschema tuple_to_schema(Pnode p)
     {
         Pschema nuovo = (Pschema) newmem(sizeof(Schema));
         nuovo->next = NULL;
+        nuovo->name = NULL;
         if (attr->type == N_ATOMIC_TYPE)
         {
             // Per tuple di tipi
