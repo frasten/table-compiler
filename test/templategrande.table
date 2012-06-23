@@ -1,0 +1,43 @@
+program
+	integer min, max, i;
+	string s, z;
+	boolean a, b, c;
+	table(integer a, string b) R;
+	table(integer c, boolean d) T;
+	min = 1;
+	max = 10;
+	s = "alpha";
+	b = true;
+	R = {(1, "pippo"),(2, "topolino"),(3, "pluto")};
+	R = {integer, string};
+	i = max - min;
+	write select [b == "alpha" ] R;
+	write select [ exists [ a > c ] T ] R;
+	a = (b and c) or a;
+	b = (min == max or max == i);
+	b = ( max > min or s < z );
+	i = (i+5)*(max-min);
+	table(integer a, boolean b, integer c) Q;
+	table(integer d, integer e) K;
+	table(integer a, boolean b, integer c, integer d, integer e) w;
+	w = Q join [ c == a+d-5 and b ] K;
+	i = -min;
+	b = max > min*i and not (a or b);
+	K = project [ d, e ] w;
+	R = rename [ a, b ] R;
+	T = update [ c = min+max/i ] T;
+	read a;
+	read [ s ] R;
+	if min == max then
+		i = max - min
+	else
+		i = min + max
+	end;
+	while i > 1 do
+		max = i * min;
+		i = i-1
+	end;
+	table(integer a, boolean b) G;
+	Q = extend [ integer c = 1 ] G
+end
+
