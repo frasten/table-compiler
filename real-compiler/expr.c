@@ -456,6 +456,7 @@ Code expr(Pnode root, Pschema pschema)
                 semerror(root->child, "Wrong number of attributes in rename");
 
             // Rinomino le variabili nello schema
+            pschema->type = TABLE;
             pschema->next = clone_schema(schema1.next);
             Pschema schemaptr = pschema->next;
             Pname n;
