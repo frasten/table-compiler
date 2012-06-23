@@ -139,7 +139,7 @@ Code assign_stat(Pnode p)
 {
     Psymbol symbol;
     Code exprcode;
-    Pschema exprschema;
+    Schema exprschema;
 /*
     assign_stat
         /
@@ -151,14 +151,15 @@ Code assign_stat(Pnode p)
     symbol = lookup(valname(p->child));
     if (symbol == NULL)
         semerror(p->child, "Undefined identifier in assignment");
-    exprschema = clone_schema(&symbol->schema);
-    exprcode = expr(p->child->brother, exprschema);
+
+    exprcode = expr(p->child->brother, &exprschema);
 
     // Type checking:
-    if (!type_equal(symbol->schema, *exprschema))
+    if (!type_equal(symbol->schema, exprschema))
         semerror(p->child->brother, "Incompatible types in assignment");
 
-    free_schema(exprschema);
+    if (exprschema.next != NULL)
+        free_schema(exprschema.next);
 
     Value v1; v1.ival = symbol->oid;
     return concode(
