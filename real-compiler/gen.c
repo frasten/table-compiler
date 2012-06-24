@@ -146,7 +146,11 @@ void free_code(Code* code)
             if (tipo == '\0') break;
 
             if (tipo == 's')
-                freemem(pstat->args[i].sval, sizeof(char*));
+                if (pstat->op == T_FPRINT ||
+                    pstat->op == T_PRINT ||
+                    pstat->op == T_FGET ||
+                    pstat->op == T_GET)
+                    freemem(pstat->args[i].sval, sizeof(char*));
         }
         freemem(pstat, sizeof(Tstat));
         pstat = pstat_next;

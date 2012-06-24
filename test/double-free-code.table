@@ -1,0 +1,5 @@
+program
+	string a;
+	a = "ciao";
+	write "ciao"
+end
