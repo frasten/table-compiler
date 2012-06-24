@@ -38,7 +38,6 @@ program
 		max = i * min;
 		i = i-1
 	end;
-	write project [a, d] (R join [ a == c ] T);
 	table(integer a, boolean b) G;
 	Q = extend [ integer c = 1 ] G
 end
