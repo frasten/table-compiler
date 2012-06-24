@@ -26,6 +26,7 @@ program
 	K = project [ d, e ] w;
 	R = rename [ a, b ] R;
 	T = update [ c = min+max/i ] T;
+	write all [d and false] T;
 	read a;
 	read [ s ] R;
 	if min == max then
@@ -37,6 +38,7 @@ program
 		max = i * min;
 		i = i-1
 	end;
+	write project [a, d] (R join [ a == c ] T);
 	table(integer a, boolean b) G;
 	Q = extend [ integer c = 1 ] G
 end
