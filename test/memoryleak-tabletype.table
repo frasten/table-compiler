@@ -1,0 +1,4 @@
+program
+table (boolean a) T;
+T = {(true)}
+end

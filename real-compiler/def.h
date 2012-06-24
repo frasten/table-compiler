@@ -107,7 +107,7 @@ typedef struct s_symbol
 {
     int oid;
     int size;
-    Schema schema;
+    Pschema schema;
     struct s_symbol *next;
 } Symbol;
 
@@ -224,10 +224,10 @@ Boolean compatible(char*, char*),
         name_in_environment(char*),
         name_in_list(char*, Pname),
         repeated_names(Pname),
-        type_equal(Schema, Schema);
+        type_equal(Pschema, Pschema);
 
 char *clear_string(char *s),
-     *get_format(Schema),
+     *get_format(Pschema),
      *nameop(Operator),
      *operator(int),
      *update_lextab(char*),
@@ -281,13 +281,12 @@ Pschema append_schemas(Pschema, Pschema),
         name_in_schema(char*, Pschema),
         schemanode(char*, int),
         table_type(Pnode),
-        tuple_to_schema(Pnode);
+        tuple_to_schema(Pnode),
+        type(Pnode);
 	
-Psymbol insert(Schema),
+Psymbol insert(Pschema),
         lookup(char*);
 	
-Schema type(Pnode);
-
 size_t strlen (const char*);
 
 Tstat *newstat(Operator);
@@ -307,7 +306,7 @@ void codeprint(Code, int),
      push_environment(),
      eliminate(char*),
      relocate_address(Code, int),
-     schprint(Schema),
+     schprint(Pschema),
      semerror(Pnode, char*),
      symprint(),
      syserror(char*),

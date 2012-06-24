@@ -1,15 +1,17 @@
 #include "def.h"
 #include "parser.h"
 
-Boolean type_equal(Schema schema1, Schema schema2)
+Boolean type_equal(Pschema schema1, Pschema schema2)
 {
     Pschema p1, p2;
 
-    if(schema1.type != schema2.type)
+    if (schema1 == schema2)
+        return TRUE;
+    if(schema1->type != schema2->type)
         return(FALSE);
-    if(schema1.type == TABLE)
+    if(schema1->type == TABLE)
     {
-        for(p1 = schema1.next, p2 = schema2.next; p1 != NULL && p2 != NULL; p1= p1->next, p2 = p2->next)
+        for(p1 = schema1->next, p2 = schema2->next; p1 != NULL && p2 != NULL; p1= p1->next, p2 = p2->next)
             if(p1->type != p2->type || !compatible(p1->name, p2->name))
                 return(FALSE);
         return(p1 == NULL && p2 == NULL);
@@ -159,7 +161,8 @@ Code expr(Pnode root, Pschema pschema)
             {
                 /* Variabile */
                 // Assegno il tipo
-                *pschema = symbol->schema;
+                // TODO: faccio bene? Mi fa un po' schifo copiare cosi'.
+                *pschema = *symbol->schema;
                 Value v; v.ival = symbol->oid;
                 return makecode1(T_LOB, v);
             }
@@ -243,7 +246,7 @@ Code expr(Pnode root, Pschema pschema)
             {
                 case EQ:
                 case NE:
-                    if (!type_equal(schema1, schema2))
+                    if (!type_equal(&schema1, &schema2))
                         semerror(root, "Comparison requires same types");
                     return concode(
                         code1,
@@ -563,7 +566,7 @@ Code expr(Pnode root, Pschema pschema)
             if (attr == NULL)
                 semerror(root->child->brother, "Unknown attribute name");
 
-            if (!type_equal(schema2, *attr))
+            if (!type_equal(&schema2, attr))
                 semerror(root->child->brother->brother, "Attribute type and expression type must be equal in update");
 
             pschema->type = TABLE;
@@ -602,7 +605,7 @@ Code expr(Pnode root, Pschema pschema)
             if (name_in_schema(attrname, schema1.next))
                 semerror(root->child->brother->brother, "Attribute name in extend must be new");
 
-            if (!type_equal(*schema_tipo, schema2))
+            if (!type_equal(schema_tipo, &schema2))
                 semerror(root->child->brother, "Attribute type and expression type must be equal in extend");
 
 
@@ -628,27 +631,15 @@ Code expr(Pnode root, Pschema pschema)
     return endcode();
 }
 
-Schema type(Pnode p)
+Pschema type(Pnode p)
 {
-    Pschema presult;
-    Schema result;
     if (p->type == N_ATOMIC_TYPE)
-    {
-        presult = atomic_type(p);
-        result = *presult;
-        freemem(presult, sizeof(Schema));
-        return result;
-    }
+        return atomic_type(p);
     else if (p->type == N_TABLE_TYPE)
-    {
-        presult = table_type(p);
-        result = *presult;
-        freemem(presult, sizeof(Schema));
-        return result;
-    }
+        return table_type(p);
     else noderror(p);
 
-    return *schemanode(NULL, 0); // Solo per eliminare il warning del compilatore
+    return NULL;
 }
 
 Pschema atomic_type(Pnode p)

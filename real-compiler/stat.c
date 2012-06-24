@@ -67,7 +67,7 @@ Code def_stat(Pnode p)
     Code c_temp, code_ret;
     Pname names;
     Pnode nodo_type = p->child;
-    Schema schema;
+    Pschema schema;
 
     switch (nodo_type->type)
     {
@@ -106,10 +106,10 @@ Code def_stat(Pnode p)
     {
         // Aggiungo il nome alla Symbol Table
         schema = type(nodo_type);
-        schema.name = n->name;
+        schema->name = n->name;
         insert(schema);
 
-        Value v1; v1.ival = get_size(&schema);
+        Value v1; v1.ival = get_size(schema);
         c_temp = makecode1(op, v1);
         code_ret = (code_ret.head == NULL ? c_temp : appcode(code_ret, c_temp));
     }
@@ -155,7 +155,7 @@ Code assign_stat(Pnode p)
     exprcode = expr(p->child->brother, &exprschema);
 
     // Type checking:
-    if (!type_equal(symbol->schema, exprschema))
+    if (!type_equal(symbol->schema, &exprschema))
         semerror(p->child->brother, "Incompatible types in assignment");
 
     if (exprschema.next != NULL)
@@ -298,7 +298,7 @@ Code tuple_const(Pnode p, Pschema s)
 
     // Type checking
     schema = tuple_to_schema(p);
-    if (!type_equal(*schema, *s))
+    if (!type_equal(schema, s))
         semerror(p, "Incompatible tuples in table constant");
     free_schema(schema);
 
@@ -357,8 +357,8 @@ Code write_stat(Pnode p)
         // Senza specifier
         op = T_PRINT;
     }
-    format.sval = get_format(exprschema);
-    free_schema(exprschema.next);
+    format.sval = get_format(&exprschema);
+    free_schema(exprschema.next); // TODO: valutare se va bene
     return concode(
         code,
         makecode1(op, format),

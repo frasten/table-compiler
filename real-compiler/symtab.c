@@ -104,22 +104,22 @@ Psymbol lookup(char *name)
     index = hash_function(name);
     for(psymbol = symtab[index]; psymbol != NULL; psymbol = psymbol->next)
     {
-        if(psymbol->schema.name == name)
+        if(psymbol->schema->name == name)
             return(psymbol);
     }
     return(NULL);
 }
 
-Psymbol insert(Schema schema)
+Psymbol insert(Pschema schema)
 {
     int index;
     Psymbol psymbol;
 
-    index = hash_function(schema.name);
+    index = hash_function(schema->name);
     psymbol = symtab[index];
     symtab[index] = (Psymbol) newmem(sizeof(Symbol));
     symtab[index]->oid = oid_counter++;
-    symtab[index]->size = get_size(&schema);
+    symtab[index]->size = get_size(schema);
     symtab[index]->schema = schema;
     symtab[index]->next = psymbol;
     return(symtab[index]);
@@ -164,15 +164,14 @@ int get_attribute_offset(Pschema pschema, char *attrname)
     return -1;
 }
 
-char *get_format(Schema schema)
+char *get_format(Pschema schema)
 {
     char *format;
-    Pschema pschema;
     char *attr_name, *atomic_type;
     Boolean first = TRUE;
     
     format = (char*) newmem(MAXFORMAT);
-    switch(schema.type)
+    switch(schema->type)
     {
         case INTEGER: 
             sprintf(format, "i"); 
@@ -185,10 +184,10 @@ char *get_format(Schema schema)
             break;
         case TABLE: 
             sprintf(format, "(");
-            for(pschema = schema.next; pschema; pschema = pschema->next)
+            for(schema = schema->next; schema; schema = schema->next)
             {
-                attr_name = (pschema->name ? pschema->name : "?");
-                atomic_type = (pschema->type == INTEGER ? "i" : (pschema->type == STRING ? "s" : "b"));
+                attr_name = (schema->name ? schema->name : "?");
+                atomic_type = (schema->type == INTEGER ? "i" : (schema->type == STRING ? "s" : "b"));
                 if(first == FALSE)
                     strcat(format, ",");
                 sprintf(&format[strlen(format)], "%s:%s", attr_name, atomic_type);
@@ -211,12 +210,13 @@ void eliminate(char *name)
     prec = psymb = symtab[index];
     while(psymb != NULL)
     {
-        if(psymb->schema.name == name)
+        if(psymb->schema->name == name)
         {
             if(psymb == prec)
                 symtab[index] = psymb->next;
             else
                 prec->next = psymb->next;
+            free_schema(psymb->schema);
             freemem(psymb, (int)sizeof(Symbol));
             return;
         }

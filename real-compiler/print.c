@@ -117,16 +117,14 @@ void symprint()
     }
 }
 
-void schprint(Schema schema)
+void schprint(Pschema schema)
 {
-    Pschema pschema;
-    
-    printf("%s: %s", schema.name, (schema.type == TABLE ? "table" : operator(schema.type)));
-    if(schema.type == TABLE)
+    printf("%s: %s", schema->name, (schema->type == TABLE ? "table" : operator(schema->type)));
+    if(schema->type == TABLE)
     {
         printf("(");
-        for(pschema = schema.next; pschema!= NULL; pschema = pschema->next)
-            printf("%s:%s ", pschema->name, operator(pschema->type));
+        for(schema = schema->next; schema!= NULL; schema = schema->next)
+            printf("%s:%s ", schema->name, operator(schema->type));
         printf(")");
     }
     printf("\n");
