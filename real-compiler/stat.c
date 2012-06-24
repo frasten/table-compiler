@@ -358,7 +358,7 @@ Code write_stat(Pnode p)
         op = T_PRINT;
     }
     format.sval = get_format(&exprschema);
-    free_schema(exprschema.next); // TODO: valutare se va bene
+    free_schema(exprschema.next);
     return concode(
         code,
         makecode1(op, format),

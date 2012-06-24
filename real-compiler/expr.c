@@ -149,7 +149,7 @@ Code expr(Pnode root, Pschema pschema)
             Pschema tmp;
             if ((tmp = name_in_constack(valname(root), &offset, &context)) != NULL)
             {
-                // Proviamo a vedere se e' un attributo
+                /* Attributo */
                 pschema->name = valname(root);
                 pschema->type = tmp->type;
                 Value v1; v1.ival = offset;
@@ -159,9 +159,8 @@ Code expr(Pnode root, Pschema pschema)
             }
             else if ((symbol = lookup(valname(root))) != NULL)
             {
-                /* Variabile */
+                /* Variabile nella Symbol Table */
                 // Assegno il tipo
-                // TODO: faccio bene? Mi fa un po' schifo copiare cosi'.
                 *pschema = *symbol->schema;
                 Value v; v.ival = symbol->oid;
                 return makecode1(T_LOB, v);
